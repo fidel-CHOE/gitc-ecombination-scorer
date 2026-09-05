@@ -1,0 +1,9 @@
+node_modules/
+package-lock.json
+
+# 학생 제출물·대회 원본 파일은 저장소에 넣지 않습니다
+*.xlsx
+*.pptx
+*.docx
+제출물/
+samples/

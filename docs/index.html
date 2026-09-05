@@ -1,0 +1,934 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="2026 GITC e-Combination 제출물을 채점 루브릭대로 채점하고 연습 가이드를 뽑아주는 자가채점 도구">
+<style>
+  :root { color-scheme: light dark; }
+  body { margin: 0; font-family: system-ui, sans-serif; font-size: 14px; background: #f7f7f5; }
+  img { max-width: 100%; }
+  [hidden] { display: none !important; }
+</style>
+</head>
+<body>
+<title>e-Combination 자가채점기</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Gowun+Dodum&family=IBM+Plex+Sans+KR:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+
+<style>
+:root{
+  --ground:#F5F7F8; --surface:#FFFFFF; --surface-2:#EDF1F3;
+  --ink:#141B24; --ink-2:#3C4854; --muted:#5C6774; --line:#DCE3E7;
+  --accent:#0E6E6B; --accent-soft:#DCEFEE; --accent-ink:#0A4F4D;
+  --got:#1F7A4D; --got-soft:#DFF0E6;
+  --part:#9A6B08; --part-soft:#F6EBD2;
+  --miss:#A63A2B; --miss-soft:#F7E3DF;
+  --shadow:0 1px 2px rgba(20,27,36,.05), 0 6px 20px rgba(20,27,36,.06);
+  --r:10px;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --ground:#10171E; --surface:#19212A; --surface-2:#212B35;
+    --ink:#E8EEF2; --ink-2:#C3CDD6; --muted:#8F9CA9; --line:#2B3641;
+    --accent:#48B9B2; --accent-soft:#16332F; --accent-ink:#8FD8D3;
+    --got:#54BF86; --got-soft:#153025;
+    --part:#DDA83F; --part-soft:#33280F;
+    --miss:#E3806A; --miss-soft:#35201B;
+    --shadow:0 1px 2px rgba(0,0,0,.3), 0 6px 20px rgba(0,0,0,.25);
+  }
+}
+:root[data-theme="dark"]{
+  --ground:#10171E; --surface:#19212A; --surface-2:#212B35;
+  --ink:#E8EEF2; --ink-2:#C3CDD6; --muted:#8F9CA9; --line:#2B3641;
+  --accent:#48B9B2; --accent-soft:#16332F; --accent-ink:#8FD8D3;
+  --got:#54BF86; --got-soft:#153025;
+  --part:#DDA83F; --part-soft:#33280F;
+  --miss:#E3806A; --miss-soft:#35201B;
+  --shadow:0 1px 2px rgba(0,0,0,.3), 0 6px 20px rgba(0,0,0,.25);
+}
+
+*{box-sizing:border-box}
+body{
+  margin:0; background:var(--ground); color:var(--ink);
+  font-family:"IBM Plex Sans KR","Apple SD Gothic Neo","Malgun Gothic",system-ui,sans-serif;
+  font-size:16px; line-height:1.65; -webkit-font-smoothing:antialiased;
+}
+.wrap{max-width:920px; margin:0 auto; padding:32px 20px 80px}
+.mono{font-family:"IBM Plex Mono",ui-monospace,monospace; font-variant-numeric:tabular-nums}
+
+/* header */
+header.top{display:flex; flex-direction:column; gap:10px; padding-bottom:26px; border-bottom:2px solid var(--line); margin-bottom:34px}
+.eyebrow{font-size:12.5px; letter-spacing:.13em; text-transform:uppercase; color:var(--accent); font-weight:600}
+h1{font-family:"Gowun Dodum",serif; font-size:clamp(30px,5vw,42px); line-height:1.2; margin:0; text-wrap:balance; letter-spacing:-.01em}
+.lede{color:var(--muted); max-width:62ch; margin:0; font-size:15.5px}
+
+/* stage */
+.stage{margin-bottom:34px}
+.stage-head{display:flex; align-items:baseline; gap:12px; margin-bottom:14px}
+.step-n{font-family:"IBM Plex Mono",monospace; font-size:13px; font-weight:600; color:var(--accent);
+  border:1.5px solid var(--accent); border-radius:999px; width:26px; height:26px; display:grid; place-items:center; flex:0 0 auto; align-self:center}
+.stage-head h2{font-size:19px; margin:0; font-weight:600; letter-spacing:-.01em}
+.stage-head .hint{font-size:13.5px; color:var(--muted); margin-left:auto; text-align:right}
+
+/* type picker */
+.types{display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:10px}
+.type-btn{
+  text-align:left; background:var(--surface); border:1.5px solid var(--line); border-radius:var(--r);
+  padding:14px 16px; cursor:pointer; font:inherit; color:var(--ink); display:flex; flex-direction:column; gap:3px;
+  transition:border-color .12s, background .12s;
+}
+.type-btn:hover{border-color:var(--accent)}
+.type-btn[aria-pressed="true"]{border-color:var(--accent); background:var(--accent-soft); box-shadow:inset 0 0 0 1px var(--accent)}
+.type-btn strong{font-size:15.5px; font-weight:600}
+.type-btn span{font-size:13px; color:var(--muted)}
+.type-btn[aria-pressed="true"] span{color:var(--accent-ink)}
+
+/* drops */
+.drops{display:grid; grid-template-columns:1fr 1fr; gap:12px}
+@media(max-width:620px){.drops{grid-template-columns:1fr}}
+.drop{
+  background:var(--surface); border:1.5px dashed var(--line); border-radius:var(--r); padding:22px 18px;
+  display:flex; flex-direction:column; gap:6px; align-items:flex-start; cursor:pointer; min-height:118px;
+  transition:border-color .12s, background .12s; position:relative;
+}
+.drop:hover,.drop.over{border-color:var(--accent); background:var(--accent-soft)}
+.drop.filled{border-style:solid; border-color:var(--got); background:var(--got-soft)}
+.drop .k{font-size:12px; letter-spacing:.1em; text-transform:uppercase; color:var(--muted); font-weight:600}
+.drop .t{font-size:15px; font-weight:600}
+.drop .f{font-size:13px; color:var(--muted); word-break:break-all}
+.drop.filled .f{color:var(--got); font-weight:500}
+.drop input{position:absolute; inset:0; opacity:0; cursor:pointer}
+
+/* actions */
+.actions{display:flex; gap:12px; align-items:center; flex-wrap:wrap; margin-top:16px}
+button.go{
+  font:inherit; font-weight:600; font-size:16px; background:var(--accent); color:#fff; border:none;
+  border-radius:var(--r); padding:13px 26px; cursor:pointer; transition:opacity .12s;
+}
+button.go:hover{opacity:.88}
+button.go:disabled{opacity:.4; cursor:not-allowed}
+button.ghost{font:inherit; background:none; border:1.5px solid var(--line); color:var(--ink-2); border-radius:var(--r); padding:11px 18px; cursor:pointer}
+button.ghost:hover{border-color:var(--accent); color:var(--accent)}
+:focus-visible{outline:3px solid var(--accent); outline-offset:2px; border-radius:4px}
+
+.note{font-size:13.5px; color:var(--muted)}
+.warn{background:var(--miss-soft); border-left:3px solid var(--miss); padding:14px 16px; border-radius:0 var(--r) var(--r) 0; font-size:14.5px; color:var(--ink)}
+.warn b{color:var(--miss)}
+.warn code{font-family:"IBM Plex Mono",monospace; background:var(--surface); padding:1px 6px; border-radius:4px; font-size:13.5px}
+
+/* results */
+#result[hidden]{display:none!important}
+.scoreline{display:flex; align-items:flex-end; gap:20px; flex-wrap:wrap; padding:24px 0 20px; border-bottom:2px solid var(--line)}
+.total{display:flex; align-items:baseline; gap:6px}
+.total .n{font-family:"IBM Plex Mono",monospace; font-size:60px; font-weight:600; line-height:1; letter-spacing:-.03em}
+.total .d{font-size:20px; color:var(--muted); font-weight:500}
+.verdict{font-size:15px; color:var(--ink-2); max-width:44ch; margin-left:auto; text-align:right}
+.verdict strong{color:var(--accent)}
+
+.bars{display:flex; flex-direction:column; gap:14px; margin:24px 0 34px}
+.bar-row{display:grid; grid-template-columns:130px 1fr 78px; gap:14px; align-items:center}
+@media(max-width:560px){.bar-row{grid-template-columns:96px 1fr 66px; gap:10px}}
+.bar-row .lbl{font-size:14.5px; font-weight:600}
+.bar-row .lbl em{display:block; font-style:normal; font-size:12.5px; color:var(--muted); font-weight:400}
+.track{height:14px; background:var(--surface-2); border-radius:999px; overflow:hidden}
+.fill{height:100%; border-radius:999px; transition:width .5s cubic-bezier(.2,.7,.3,1)}
+.bar-row .val{text-align:right; font-family:"IBM Plex Mono",monospace; font-size:15px; font-weight:600}
+.bar-row .val small{color:var(--muted); font-weight:500; font-size:13px}
+
+h3.sec{font-size:17px; font-weight:600; margin:38px 0 4px; letter-spacing:-.01em}
+p.sec-sub{margin:0 0 16px; font-size:14px; color:var(--muted)}
+
+.tablewrap{overflow-x:auto; border:1px solid var(--line); border-radius:var(--r); background:var(--surface)}
+table{border-collapse:collapse; width:100%; min-width:560px; font-size:14.5px}
+caption{text-align:left; padding:14px 16px 0; font-weight:600; font-size:15px}
+th,td{text-align:left; padding:11px 14px; border-bottom:1px solid var(--line); vertical-align:top}
+thead th{font-size:12px; letter-spacing:.08em; text-transform:uppercase; color:var(--muted); font-weight:600; background:var(--surface-2)}
+tbody tr:last-child td{border-bottom:none}
+td.pts{text-align:right; white-space:nowrap; font-family:"IBM Plex Mono",monospace; font-weight:600}
+td.pts small{color:var(--muted); font-weight:500}
+.why{display:block; font-size:13px; color:var(--muted); margin-top:3px}
+.chip{display:inline-block; font-size:11.5px; font-weight:600; padding:2px 8px; border-radius:999px; white-space:nowrap}
+.chip.got{background:var(--got-soft); color:var(--got)}
+.chip.part{background:var(--part-soft); color:var(--part)}
+.chip.miss{background:var(--miss-soft); color:var(--miss)}
+.chip.auto{background:var(--surface-2); color:var(--muted)}
+
+/* guide */
+.guides{display:flex; flex-direction:column; gap:12px}
+.guide{background:var(--surface); border:1px solid var(--line); border-left:4px solid var(--accent); border-radius:0 var(--r) var(--r) 0; padding:16px 18px; box-shadow:var(--shadow)}
+.guide .gh{display:flex; gap:10px; align-items:baseline; flex-wrap:wrap; margin-bottom:5px}
+.guide .gh strong{font-size:15.5px; font-weight:600}
+.guide .gain{font-family:"IBM Plex Mono",monospace; font-size:13px; font-weight:600; color:var(--accent); background:var(--accent-soft); padding:1px 8px; border-radius:999px}
+.guide p{margin:0; font-size:14.5px; color:var(--ink-2)}
+.guide.big{border-left-color:var(--miss)}
+.guide.big .gain{color:var(--miss); background:var(--miss-soft)}
+
+.thinking{display:flex; align-items:center; gap:10px; font-size:14.5px; color:var(--muted); padding:14px 0}
+.dot{width:8px; height:8px; border-radius:50%; background:var(--accent); animation:pulse 1.1s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:.25; transform:scale(.8)}50%{opacity:1; transform:scale(1.15)}}
+@media (prefers-reduced-motion:reduce){.dot{animation:none; opacity:.7} .fill{transition:none}}
+
+footer.foot{margin-top:56px; padding-top:20px; border-top:1px solid var(--line); font-size:13px; color:var(--muted); display:flex; flex-direction:column; gap:6px}
+</style>
+
+<div class="wrap">
+
+<header class="top">
+  <div class="eyebrow">2026 GITC 한국대표단</div>
+  <h1>e-Combination 자가채점기</h1>
+  <p class="lede">제출할 파일을 넣으면 실제 채점 루브릭 그대로 100점 만점으로 채점하고, 어디를 더 채워야 점수가 오르는지 알려줍니다. 제출 전에 스스로 먼저 채점해 보세요.</p>
+</header>
+
+<section class="stage" aria-labelledby="s1h">
+  <div class="stage-head"><span class="step-n" aria-hidden="true">1</span><h2 id="s1h">유형 고르기</h2></div>
+  <div class="types" role="group" aria-labelledby="s1h" id="types"></div>
+</section>
+
+<section class="stage" aria-labelledby="s2h">
+  <div class="stage-head">
+    <span class="step-n" aria-hidden="true">2</span><h2 id="s2h">파일 넣기</h2>
+    <span class="hint" id="fileHint">엑셀 1개 + 파워포인트 1개</span>
+  </div>
+  <div class="drops" id="drops"></div>
+  <div class="actions">
+    <button class="go" id="run" disabled>채점하기</button>
+    <button class="ghost" id="reset" type="button">다시 넣기</button>
+    <span class="note" id="status">파일은 이 페이지 안에서만 열립니다. 어디로도 전송되지 않습니다.</span>
+  </div>
+  <div id="err" style="margin-top:14px"></div>
+</section>
+
+<section class="stage" id="preview" aria-labelledby="pvh">
+  <div class="stage-head">
+    <span class="step-n" aria-hidden="true">?</span><h2 id="pvh">무엇을 채점하나요</h2>
+    <span class="hint">100점 = 검색 30 · 엑셀 30 · 발표 40</span>
+  </div>
+  <div id="pvBody"></div>
+</section>
+
+<section class="stage" id="result" hidden aria-labelledby="s3h" aria-live="polite">
+  <div class="stage-head"><span class="step-n" aria-hidden="true">3</span><h2 id="s3h">채점 결과</h2></div>
+
+  <div class="scoreline">
+    <div class="total"><span class="n mono" id="totalN">0</span><span class="d">/ 100점</span></div>
+    <p class="verdict" id="verdict"></p>
+  </div>
+
+  <div class="bars" id="bars"></div>
+
+  <h3 class="sec">항목별 채점표</h3>
+  <p class="sec-sub" id="tableSub"></p>
+  <div id="tables"></div>
+
+  <h3 class="sec">다음에 이것부터 — 연습 가이드</h3>
+  <p class="sec-sub">놓친 점수가 큰 순서입니다. 위에서 두세 개만 해결해도 점수가 크게 오릅니다.</p>
+  <div class="guides" id="guides"></div>
+</section>
+
+<footer class="foot">
+  <div>채점 기준: 2026 GITC 한국예선 e-Combination 채점 루브릭 (정보검색 30 · 엑셀 30 · 발표자료 40)</div>
+  <div>자동 채점 항목은 파일 구조에서 직접 확인한 결과이고, 내용 판정 항목은 AI가 루브릭 문구대로 판단합니다. 최종 점수는 대회 채점위원의 판단과 다를 수 있습니다.</div>
+</footer>
+
+</div>
+
+<script>
+"use strict";
+const TPL = {"other":{"s1":["10xxht7","169x7te","17c0v8k","18bm4lu","1d8e0am","1ggskkb","1jle5jl","1l2c9ho","1lary5v","1mi2pq9","1mofkfp","1nqhlq5","1obfpm0","1qyqc5n","1s1mapm","1ta093z","1uyjg6m","1vbr31r","1wdzccm","1yhgetk","5dzpgh","7tja22","9xx36n","a9kh1x","em30fr","k9l1yq","kn2fpu","q6m97h","rrey13","wv977p","ycnl2z","ztinww","zui86a"],"s3":["10g9sjm","1140saq","11pcryb","13vd7k5","14p4130","14p8h6m","15yimxd","16gc9y2","19mf99b","19rrrma","1btwj8x","1dcrh36","1f4nzkr","1fc4vik","1h0k7yc","1ht26k4","1j87aet","1likuxp","1v04blw","1wlwnf1","1yedn7","1ykac9n","2m4o9v","31tjy1","34aic7","3uxrxf","3yn59m","4zyaom","6rjk8","6s339v","7fuwxg","8mn30a","aswafk","bhzczw","bw2tfz","c65kmx","d1amx2","dqnff0","drz29n","e9drao","ev51lj","jjjiii","njp6t","oxxajo","pds3xx","rn058w","uf14ls","vasbll","xrqng","y6tp86","y7hpmb","zjbdnh","zrcfmj"],"ppt":[["108bb82","10rpq2","11k1qbe","125ysqg","18d8v6t","1b06p5k","1mif67l","1pycc3o","1ub2ks6","1wh5aat","1y8psp0","1yzj43c","3ia7qv","7tjd6q","99d94q","9eszau","9xx36n","a030mk","be113f","bo0mse","by08hd","cf6d9r","chzfvb","ctkn0l","hhsact","ou4rpj","y8ippp","z8n7sa","zyatob"],["11lh7ya","14dueoc","181l2xx","18p2hxv","19hmrz5","1azrk0p","1b06p5k","1fpuaaz","1ik06lp","1ka73dx","1nmurjf","1ns6b76","1ol80wy","1qkemj","1ruro9","1um51mz","1wp50mu","1y1ijsi","3ia7qv","7bo4uq","9njn80","aw0l2d","be113f","by08hd","bz33lz","c7zu6c","chzfvb","efwnq4","hb89o9","hhsact","i24nh9","jvgzkg","pav9sn","tmlq1g","ztntfp"],["101x4w4","125ysqg","14dueoc","14nm2mf","15wzpsr","1b06p5k","1bscixm","1coa0l1","1jbfbko","1ns6b76","1ol80wy","1txahv6","1um51mz","6rkknv","8ukg3z","9vvqpg","9xx36n","aw0l2d","bajbyu","by08hd","c7zu6c","chzfvb","dby8y8","defbss","efwnq4","f9vgt1","fyzl56","hhsact","huek1y","i24nh9","jvgzkg","op5ydw","qgsffn","ukbjag"],["10led6f","125ysqg","1299sck","140uyhk","14dueoc","14ibmq1","14t3m05","17msbv","191pl3t","1aiexrw","1b06p5k","1cuix40","1dko1np","1e1c3wr","1fgq4of","1izyiuv","1kq1cjr","1lihrjf","1mcblzl","1najbz6","1ns6b76","1ol80wy","1oupwc4","1rugzt3","1tqxice","1u7q7z0","1um51mz","1uvlekt","1uxq9rm","1uzg5j","1v1zfa1","1yjxeuf","2sdgkd","3ia7qv","6sv8wj","7u4yfo","844k4n","8kyhxr","9xx36n","a030mk","be113f","bo0mse","by08hd","c7zu6c","chzfvb","dlxun7","ewvsu2","ezvv42","f9vgt1","h05sxp","hhsact","hkr6l1","i24nh9","iepw35","kghy3d","m2km69","nmtihf","p0vv5l","p6pm7c","qiycjk","rwic6f","tob4mw","uac0jd","ui0455","ztntfp"]]},"dev":{"s1":["1097w9h","10xxht7","12huv63","13c0i9e","169x7te","186zvf","18ayvgz","1f8ey4t","1gip5m9","1jle5jl","1l2c9ho","1n4zpa","1nqhlq5","1qyqc5n","1s1mapm","1t5zst9","1t9xzol","1ta093z","1wv7ixb","38l1fa","6k51ho","9xx36n","a9kh1x","bqf2o7","grkxdn","i6h6tb","pfr4w3","q6m97h","qlexm3","rrey13","vf3t69","ztinww","zui86a"],"s3":["11yl21s","14akxct","15j5ml7","17fndkv","17nqhuy","1ago9iq","1cttald","1e8mk3d","1gb14vd","1h1i9rt","1ht26k4","1iuoex6","1jyrlzn","1ozayfu","1pa2890","1pii12h","1q3g6jb","1qma4uf","1rvoqkt","1vj2wex","1y299gw","2rj9zp","3ia7qv","51pp6f","6s339v","766mgz","76f8ki","7awl88","7oevjc","9ieti0","9rmbs3","9u5ycu","bgxq2z","c77qrl","ct7moj","cw3cud","d5e4ux","d71634","drz29n","hyg581","jbttmt","kh2fxe","l85w0z","lyrkne","ml2for","o4495s","pzh4s6","qad4z","y8aebe","ylzqpb"],"ppt":[["108bb82","124lqiv","17o0zjv","1b06p5k","1g9osep","1oi8cnl","1pycc3o","1ub2ks6","1v5gv9s","1wh5aat","1xk1tj","4nfuvi","7tjd6q","9eszau","a030mk","be113f","bo0mse","by08hd","c7zu6c","chzfvb","cj1jqs","eo0vpq","hhsact","mujstq","r72nmg","tuzgv0","v8pm9j","y2950y","ztntfp"],["12fwgvx","12p68ko","19hmrz5","19qkfu8","1b06p5k","1deg9ob","1ns6b76","1ol80wy","1pb9w8u","1qkemj","1u273fx","1um51mz","1wuf4cp","3ia7qv","3nzjdh","7065cr","a030mk","aw0l2d","be113f","by08hd","c7zu6c","chzfvb","clgss8","cp6r7y","dd5pdc","efwnq4","g9zrb6","hhsact","i24nh9","jvgzkg","tc24kc","xhkz51","ysp3zn","ztntfp"],["101x4w4","14dueoc","184vq2u","1ajir9r","1b06p5k","1b5f3on","1kfyp4p","1ns6b76","1ol80wy","1q2qq03","1svnq8j","1tfgtmm","1um51mz","1v6b0qx","9xx36n","acybee","aw0l2d","bgi1jw","by08hd","dby8y8","efwnq4","ezvv42","f9vgt1","hhsact","hxlndf","i24nh9","jvgzkg","k686xv","l3zenu","sdcq5z","wv9jha","ztntfp"],["10led6f","14dueoc","16rtkpj","17msbv","17o0zjv","18afdru","1aesquj","1b06p5k","1beroie","1h7vkk0","1hpfbq3","1i71zjs","1i8husv","1is00iy","1ns6b76","1oeb3qh","1um51mz","2kq7bv","2vbs1f","3ia7qv","6q32by","7mbqc9","9xx36n","a030mk","be113f","bo0mse","by08hd","c0as2u","c7zu6c","chzfvb","ctiked","dlxun7","ezvv42","f9vgt1","gv7ikg","hhsact","i24nh9","i6p7x2","jsl8ft","jvgzkg","llz951","lsk1jg","nfep11","o3pmf3","p6pm7c","qg5eo0","re3tah","xwfo18","ztntfp"]]},"visual":{"s1":["10xxht7","169x7te","17c0v8k","18bm4lu","1d8e0am","1ggskkb","1jle5jl","1l2c9ho","1lary5v","1mi2pq9","1mofkfp","1nqhlq5","1obfpm0","1qyqc5n","1s1mapm","1ta093z","1uyjg6m","1vbr31r","1wdzccm","1yhgetk","5dzpgh","7tja22","9xx36n","a9kh1x","em30fr","k9l1yq","kn2fpu","q6m97h","rrey13","wv977p","ycnl2z","ztinww","zui86a"],"s3":["10g9sjm","1140saq","11pcryb","13vd7k5","14p4130","14p8h6m","15yimxd","16gc9y2","19mf99b","19rrrma","1btwj8x","1dcrh36","1f4nzkr","1fc4vik","1h0k7yc","1ht26k4","1j87aet","1likuxp","1v04blw","1wlwnf1","1yedn7","1ykac9n","2m4o9v","31tjy1","34aic7","3uxrxf","3yn59m","4zyaom","6rjk8","6s339v","7fuwxg","8mn30a","aswafk","bhzczw","bw2tfz","c65kmx","d1amx2","dqnff0","drz29n","e9drao","ev51lj","jjjiii","njp6t","oxxajo","pds3xx","rn058w","uf14ls","vasbll","xrqng","y6tp86","y7hpmb","zjbdnh","zrcfmj"],"ppt":[]}};
+
+/* ────────────────────────────────────────────────────────────
+   문제 정의 — 새 문제 세트는 여기에만 추가하면 됩니다
+   ──────────────────────────────────────────────────────────── */
+const SETS = {
+  other: {
+    label: "비발달 유형",
+    sub: "청각 · 지체 · 기타 · 차세대 AI NPC 제안",
+    doc: "pptx", docLabel: "파워포인트", docExt: ".pptx",
+    tpl: "other",
+    sheet1: /Searching|검색/i, sheet3: /Visualization|시각화/i,
+    fx: [
+      {id:"f1", label:"COUNTIF — Action/RPG 장르 엔진 개수", fn:["COUNTIF"], pts:2, answer:13,
+       advice:"COUNTIF는 '조건에 맞는 칸이 몇 개인가'를 세는 함수입니다. =COUNTIF(범위, \"Action/RPG\") 형태로, 장르가 적힌 열 전체를 범위로 잡으세요."},
+      {id:"f2", label:"VLOOKUP — Engine ID로 엔진 이름 찾기", fn:["VLOOKUP"], pts:2,
+       advice:"VLOOKUP은 왼쪽 열에서 값을 찾아 오른쪽 열의 값을 가져옵니다. =VLOOKUP(찾을값, 표범위, 2, FALSE) — 마지막 FALSE를 빠뜨리면 엉뚱한 값이 나옵니다."},
+      {id:"f3", label:"IFERROR — 잘못된 ID일 때 안내 메시지", fn:["IFERROR"], pts:2,
+       advice:"VLOOKUP을 IFERROR로 감싸면 됩니다. =IFERROR(VLOOKUP(...), \"Engine ID를 확인하세요.\") — 두 함수를 한 칸에 같이 쓰는 것이 정답입니다."},
+      {id:"f4", label:"총 기술점수 — 응답속도+지능+접근성", fn:["SUM","+"], pts:2, col:"I", from:5, to:54,
+       advice:"I열 전체를 채워야 합니다. 맨 위 칸에 =SUM(D5:F5)을 넣고 아래로 끌어 복사하세요. 한 칸만 계산하면 점수가 없습니다."},
+      {id:"f5", label:"RANK — 총 기술점수 순위", fn:["RANK"], pts:2, col:"J", from:5, to:54,
+       advice:"=RANK.EQ(I5, $I$5:$I$54) — 비교 범위에 $를 붙여 고정해야 아래로 복사해도 순위가 흐트러지지 않습니다."},
+      {id:"f6", label:"IF — 상위 5위 & 버그율 2% 이하면 Select", fn:["IF"], pts:2, col:"K", from:5, to:54, rowAlign:true,
+       advice:"두 조건을 모두 만족해야 하므로 AND를 씁니다. =IF(AND(J5<=5, G5<=2%), \"Select\", \"-\") — 참조하는 행 번호가 자기 행과 같은지 꼭 확인하세요."}
+    ],
+    docItems: [
+      {id:"d1", label:"제목 · 목차 · 소속/이름", max:5,
+       rule:"1페이지에 제안서 제목, 목차, 소속과 이름이 모두 있으면 5점. 제목이나 목차 중 하나가 빠지면 3점. 소속·이름만 있으면 1점. 아무것도 없으면 0점.",
+       advice:"1페이지는 표지입니다. 제안서 제목 한 줄, 목차 3줄, 그리고 대한민국 / 본인 이름. 이것만 채우면 5점입니다."},
+      {id:"d2", label:"2페이지 — 분석 결과", max:10,
+       rule:"헤드메시지(페이지 맨 위에서 이 장의 결론을 한 문장으로 말하는 문장)가 데이터를 근거로 잘 쓰였으면 3점, 있으나 의미가 약하면 1점, 없으면 0점. 엑셀에서 만든 표나 차트를 2개 이상 넣었으면 5점, 1개면 3점, 없으면 0점. 차트 제목과 글꼴이 통일되어 있으면 2점.",
+       advice:"2페이지 맨 위에 결론 한 문장을 쓰세요. 예: 'AI 지능 수준이 레벨 8 이상일 때 사용자 행복도가 89%를 넘습니다.' 그리고 엑셀에서 만든 차트를 2개 이상 붙여넣으세요."},
+      {id:"d3", label:"3페이지 — 상위 5개 엔진 선정", max:10,
+       rule:"헤드메시지를 썼으면 3점. 최종 상위 5개 AI 엔진 목록을 표로 제시했으면 4점(열·행 제목 등 빠진 항목마다 1점 차감). 엔진 사양표를 넣었으면 2점, 그렇게 고른 이유를 썼으면 2점.",
+       advice:"엑셀에서 Select로 걸러낸 엔진 5개를 표로 옮기세요. 표에는 반드시 열 제목(엔진 이름 / 응답속도 / 지능수준 / 버그율)을 넣고, 왜 이 5개인지 한 문장을 덧붙이세요."},
+      {id:"d4", label:"4페이지 — 대화 대본과 포용적 UX", max:10,
+       rule:"기술 요구사항과 게이머 요구사항 정리 1개당 1점, 특성이 잘 파악되었으면 2점 추가(최대 5점). 맞춤형 AI NPC 대사와 포용적 인터페이스 기능 1개당 1점, 잘 파악되었으면 2점 추가(최대 5점).",
+       advice:"4페이지는 개수 싸움입니다. AI NPC 대사를 1개만 쓰지 말고 상황별로 2~3개, 접근성 기능도 청각·시각·지체로 나눠 3개 이상 나열하세요. 하나당 1점씩 쌓입니다."}
+    ]
+  },
+
+  dev: {
+    label: "발달 유형",
+    sub: "AI 버추얼 아이돌 연습생 기획",
+    doc: "pptx", docLabel: "파워포인트", docExt: ".pptx",
+    tpl: "dev",
+    sheet1: /검색|Searching/i, sheet3: /시각화|Visualization/i,
+    fx: [
+      {id:"f1", label:"COUNTIF — 포지션이 '보컬'인 연습생 수", fn:["COUNTIF"], pts:2, answer:8,
+       advice:"=COUNTIF(C5:C34, \"보컬\") — 포지션이 적힌 C열 전체를 범위로 잡고, 찾을 말은 따옴표 안에 넣습니다."},
+      {id:"f2", label:"VLOOKUP — 연습생 ID로 이름 찾기", fn:["VLOOKUP"], pts:2,
+       advice:"=VLOOKUP(L7, A5:B34, 2, FALSE) — ID가 있는 열이 표의 맨 왼쪽에 오도록 범위를 잡는 것이 핵심입니다."},
+      {id:"f3", label:"IFERROR — 없는 ID일 때 안내 메시지", fn:["IFERROR"], pts:2,
+       advice:"=IFERROR(VLOOKUP(...), \"연습생 ID를 확인하세요\") 처럼 VLOOKUP을 통째로 감싸세요."},
+      {id:"f4", label:"총 역량 점수 — 팬 선호도 제외 합계", fn:["SUM","+"], pts:2, col:"I", from:5, to:34,
+       advice:"비주얼+보컬+댄스+친화력 네 칸만 더합니다. =D5+E5+F5+G5 를 I5에 넣고 아래로 끌어 복사하세요. 팬 선호도(H열)는 넣지 않습니다."},
+      {id:"f5", label:"RANK — 총 역량 점수 순위", fn:["RANK"], pts:2, col:"J", from:5, to:34,
+       advice:"=RANK.EQ(I5, $I$5:$I$34) — 범위에 $를 붙여야 아래로 복사할 때 순위가 맞습니다."},
+      {id:"f6", label:"SUMIF — 포지션별 총 역량 점수 합계", fn:["SUMIF"], pts:2,
+       advice:"=SUMIF(C5:C34, \"보컬\", I5:I34) 형태입니다. 보컬·댄스·비주얼·랩/힙합 네 줄을 모두 채워야 합니다."}
+    ],
+    docItems: [
+      {id:"d1", label:"제목 · 목차 · 소속/이름", max:5,
+       rule:"1페이지에 제안서 제목, 목차, 소속과 이름이 모두 있으면 5점. 제목이나 목차 중 하나가 빠지면 3점. 소속·이름만 있으면 1점. 아무것도 없으면 0점.",
+       advice:"1페이지 표지에 제목 한 줄, 목차 3줄, 대한민국 / 본인 이름. 이것만 채우면 5점입니다."},
+      {id:"d2", label:"2페이지 — 분석 결과", max:10,
+       rule:"헤드메시지(맨 위에서 이 장의 결론을 한 문장으로 말하는 문장)가 데이터 근거로 잘 쓰였으면 3점, 약하면 1점, 없으면 0점. 엑셀에서 만든 표나 차트를 2개 이상 넣었으면 5점, 1개면 3점, 없으면 0점. 차트 제목과 글꼴이 통일되어 있으면 2점.",
+       advice:"2페이지 맨 위에 결론 한 문장을 쓰세요. 예: '보컬 포지션이 총 역량 점수 128점으로 가장 높습니다.' 그리고 엑셀 차트를 2개 이상 붙여넣으세요."},
+      {id:"d3", label:"3페이지 — 의견 및 방향성", max:10,
+       rule:"헤드메시지를 썼으면 3점. 상위 후보 목록을 표로 제시했으면 4점(열·행 제목 등 빠진 항목마다 1점 차감). 챌린지 안무 아이디어 2점, 콘서트장 아이디어 2점.",
+       advice:"순위표에서 뽑은 연습생을 표로 옮기고 열 제목을 꼭 넣으세요. 그리고 안무 아이디어와 콘서트장 아이디어를 각각 한 줄씩 쓰면 4점이 더 붙습니다."},
+      {id:"d4", label:"4페이지 — 메시지 명확성", max:10,
+       rule:"팬덤의 특성 정리 1개당 1점, 특성이 잘 파악되었으면 2점 추가(최대 5점). AI 아이돌 그룹의 특성 정리 1개당 1점, 잘 파악되었으면 2점 추가(최대 5점).",
+       advice:"개수 싸움입니다. 팬덤 특성 3개, AI 아이돌 그룹 특성 3개를 각각 목록으로 나열하세요. 하나당 1점씩 쌓입니다."}
+    ]
+  },
+
+  visual: {
+    label: "시각 유형",
+    sub: "가이드 문서에 이어서 작성",
+    doc: "docx", docLabel: "워드 문서", docExt: ".docx",
+    tpl: "visual",
+    sheet1: /Searching|검색/i, sheet3: /Visualization|시각화/i,
+    provisional: true,
+    fx: [
+      {id:"f1", label:"COUNTIF — 조건에 맞는 개수 세기", fn:["COUNTIF"], pts:2,
+       advice:"=COUNTIF(범위, \"찾을 말\") 형태입니다. 범위는 조건이 적힌 열 전체로 잡으세요."},
+      {id:"f2", label:"VLOOKUP — ID로 이름 찾기", fn:["VLOOKUP"], pts:2,
+       advice:"=VLOOKUP(찾을값, 표범위, 2, FALSE) — 마지막 FALSE를 꼭 넣으세요."},
+      {id:"f3", label:"IFERROR — 값이 없을 때 안내 메시지", fn:["IFERROR"], pts:2,
+       advice:"=IFERROR(VLOOKUP(...), \"확인하세요\") 처럼 감싸면 됩니다."},
+      {id:"f4", label:"합계 계산 (I열 전체)", fn:["SUM","+"], pts:2, col:"I", from:5, to:54,
+       advice:"맨 윗 칸에 합계 수식을 넣고 아래 끝까지 복사하세요. 한 칸만 계산하면 점수가 없습니다."},
+      {id:"f5", label:"RANK — 순위 구하기 (J열)", fn:["RANK"], pts:2, col:"J", from:5, to:54,
+       advice:"=RANK.EQ(I5, $I$5:$I$54) — 비교 범위에 $를 붙여 고정하세요."},
+      {id:"f6", label:"조건 판정 (IF 또는 SUMIF)", fn:["IF","SUMIF"], pts:2,
+       advice:"조건이 두 개면 AND를 함께 씁니다. =IF(AND(조건1, 조건2), \"Select\", \"-\")"}
+    ],
+    docItems: [
+      {id:"d1", label:"문서 제목 · 목차 · 소속/이름", max:5,
+       rule:"문서 앞부분에 제목, 목차, 소속과 이름이 모두 있으면 5점. 제목이나 목차 중 하나가 빠지면 3점. 소속·이름만 있으면 1점. 없으면 0점.",
+       advice:"문서 맨 앞에 제목 한 줄, 목차 3줄, 대한민국 / 본인 이름을 쓰세요. 스크린리더가 순서대로 읽도록 제목 스타일(제목1)을 적용하면 더 좋습니다."},
+      {id:"d2", label:"분석 결과 정리", max:10,
+       rule:"각 항목 맨 앞에 결론을 한 문장으로 밝혔으면 3점, 약하면 1점, 없으면 0점. 엑셀에서 분석한 수치를 2개 이상 문장에 인용했으면 5점, 1개면 3점, 없으면 0점. 표를 문장으로 풀어 설명했으면 2점.",
+       advice:"차트를 못 넣는 대신 숫자를 문장에 직접 넣으세요. '응답자의 43%가 ~라고 답했고, 두 번째로 많은 응답은 ~로 27%였습니다.' 이렇게 두 개 이상 쓰면 5점입니다."},
+      {id:"d3", label:"의견 및 방향성 제시", max:10,
+       rule:"결론 문장을 썼으면 3점. 상위 항목 목록을 순서대로 정리했으면 4점(항목 이름이 빠지면 1점씩 차감). 구체적인 제안 아이디어마다 2점(최대 3점).",
+       advice:"목록은 번호를 붙여 쓰세요. 1위부터 5위까지 이름과 수치를 함께 적고, 왜 이 순서인지 한 문장을 덧붙이면 점수가 붙습니다."},
+      {id:"d4", label:"메시지 명확성", max:10,
+       rule:"대상의 특성 정리 1개당 1점, 특성이 잘 파악되었으면 2점 추가(최대 5점). 해결 방안·수칙 정리 1개당 1점, 잘 파악되었으면 2점 추가(최대 5점).",
+       advice:"특성과 방안을 각각 3개씩 목록으로 나열하세요. 하나당 1점씩 쌓이므로 개수를 채우는 것이 가장 확실합니다."}
+    ]
+  }
+};
+
+/* 검색 도구 사전 */
+const ENGINES = [["google","Google"],["구글","Google"],["naver","Naver"],["네이버","Naver"],["daum","Daum"],["다음","Daum"],
+  ["bing","Bing"],["빙","Bing"],["youtube","YouTube"],["유튜브","YouTube"],["duckduckgo","DuckDuckGo"],["namu","나무위키"],["나무위키","나무위키"]];
+const AIS = [["chatgpt","ChatGPT"],["챗gpt","ChatGPT"],["챗지피티","ChatGPT"],["gpt","ChatGPT"],["gemini","Gemini"],["제미나이","Gemini"],["제미니","Gemini"],
+  ["claude","Claude"],["클로드","Claude"],["copilot","Copilot"],["코파일럿","Copilot"],["perplexity","Perplexity"],["퍼플렉시티","Perplexity"],
+  ["wrtn","뤼튼"],["뤼튼","뤼튼"],["clova","CLOVA X"],["클로바","CLOVA X"],["grok","Grok"],["llama","Llama"]];
+
+const TECHNIQUES = [
+  {k:"역할 지정", re:/너는\s|당신은\s|넌\s|역할을?\s?(부여|맡|정)|답게|as an? |you are/i},
+  {k:"예시 제시(원샷·퓨샷)", re:/예를\s?들어|예시|다음과\s?같이|이런\s?식으로|아래처럼|for example|e\.g\./i},
+  {k:"단계별 사고(CoT)", re:/단계별|차근차근|하나씩|step.?by.?step|순서대로\s?(생각|알려)|논리적으로\s?(짚|설명|생각)/i},
+  {k:"출력 형식 지정", re:/글머리|불릿|번호(를)?\s?붙|표로|목록으로|괄호|기호|형태로|구조화|체크박스|\d\s?문장|\d\s?줄|한\s?줄|정확히\s?숫자|형식으로|bullet|format/i},
+  {k:"맥락 제시", re:/맥락|컨텍스트|context|상황(이야|이다|에서|을\s?제시|이\s?야)|상태(야|다|에서)|~?인\s?상황/i}
+];
+
+/* ────────────────────────────────────────────────────────────
+   파일 파서
+   ──────────────────────────────────────────────────────────── */
+const OLE = [0xD0,0xCF,0x11,0xE0];
+async function sniff(file){
+  const head = new Uint8Array(await file.slice(0,4).arrayBuffer());
+  if(OLE.every((b,i)=>head[i]===b)) return "encrypted";
+  if(head[0]===0x50 && head[1]===0x4B) return "ooxml";
+  return "unknown";
+}
+/* 원본 양식 문구는 해시로만 담습니다 — 문제 원문을 배포본에 싣지 않기 위해서입니다 */
+function h32(str){ let h=0x811c9dc5; for(let i=0;i<str.length;i++){ h^=str.charCodeAt(i); h=Math.imul(h,0x01000193)>>>0; } return h.toString(36); }
+const norm = s => String(s==null?"":s).replace(/\s+/g," ").trim();
+const xml = s => new DOMParser().parseFromString(s,"application/xml");
+const colOf = r => (r.match(/^([A-Z]+)/)||["",""])[1];
+const rowOf = r => parseInt((r.match(/(\d+)$/)||["","0"])[1],10);
+const colIndex = c => [...c].reduce((a,ch)=>a*26+(ch.charCodeAt(0)-64),0);
+const colName = n => { let s=""; while(n>0){ const m=(n-1)%26; s=String.fromCharCode(65+m)+s; n=(n-m-1)/26; } return s||"A"; };
+/* 엑셀이 '채우기'로 복사한 수식은 원본만 저장됩니다. 원본을 각 칸 위치로 옮겨 적습니다. */
+function shiftFormula(body, dr, dc){
+  return body.replace(/(\$?)([A-Z]{1,3})(\$?)(\d+)/g, (m,d1,col,d2,row)=>{
+    const c = d1 ? col : colName(Math.max(1, colIndex(col)+dc));
+    const r = d2 ? row : Math.max(1, parseInt(row,10)+dr);
+    return d1+c+d2+r;
+  });
+}
+
+async function parseXlsx(zip){
+  const strs=[];
+  const ssFile = zip.file("xl/sharedStrings.xml");
+  if(ssFile){
+    const d = xml(await ssFile.async("string"));
+    for(const si of d.getElementsByTagName("si")){
+      let t=""; for(const n of si.getElementsByTagName("t")) t+=n.textContent;
+      strs.push(t);
+    }
+  }
+  const rels={};
+  const relFile = zip.file("xl/_rels/workbook.xml.rels");
+  if(relFile){
+    const d = xml(await relFile.async("string"));
+    for(const r of d.getElementsByTagName("Relationship")) rels[r.getAttribute("Id")] = r.getAttribute("Target").replace(/^\/?xl\//,"");
+  }
+  const wbDoc = xml(await zip.file("xl/workbook.xml").async("string"));
+  const sheets=[];
+  for(const sh of wbDoc.getElementsByTagName("sheet")){
+    const rid = sh.getAttribute("r:id") || sh.getAttributeNS("http://schemas.openxmlformats.org/officeDocument/2006/relationships","id");
+    const target = rels[rid];
+    if(!target) continue;
+    const f = zip.file("xl/"+target) || zip.file("xl/"+target.replace(/^\//,""));
+    if(!f) continue;
+    const sd = xml(await f.async("string"));
+    const cells={}; const shared={};
+    for(const c of sd.getElementsByTagName("c")){
+      const ref=c.getAttribute("r"); if(!ref) continue;
+      const t=c.getAttribute("t");
+      const fEl=c.getElementsByTagName("f")[0];
+      const vEl=c.getElementsByTagName("v")[0];
+      let v=null;
+      if(t==="inlineStr"){ const is=c.getElementsByTagName("t")[0]; v=is?is.textContent:null; }
+      else if(vEl){ v = (t==="s") ? (strs[parseInt(vEl.textContent,10)] ?? "") : vEl.textContent; }
+      let form=null;
+      if(fEl){
+        const body = fEl.textContent;
+        const si = fEl.getAttribute("si");
+        if(body){ form = "="+body; if(si!=null && !shared[si]) shared[si]={body, ref}; }
+        else if(si!=null) form = {si, ref};   // 채우기로 복사된 칸 — 나중에 원본에서 옮겨 적습니다
+      }
+      cells[ref]={ v, f: form };
+    }
+    for(const [ref,c] of Object.entries(cells)){
+      if(c.f && typeof c.f === "object"){
+        const src = shared[c.f.si];
+        c.f = src ? "="+shiftFormula(src.body, rowOf(ref)-rowOf(src.ref), colIndex(colOf(ref))-colIndex(colOf(src.ref))) : null;
+      }
+    }
+    sheets.push({name: sh.getAttribute("name"), cells});
+  }
+  const charts = Object.keys(zip.files).filter(n=>/^xl\/charts\/chart\d+\.xml$/.test(n)).length;
+  return {sheets, charts};
+}
+
+async function parsePptx(zip){
+  const names = Object.keys(zip.files).filter(n=>/^ppt\/slides\/slide\d+\.xml$/.test(n))
+    .sort((a,b)=>parseInt(a.match(/\d+/)[0])-parseInt(b.match(/\d+/)[0]));
+  const slides=[];
+  let layouts=new Set();
+  for(const n of names){
+    const raw = await zip.file(n).async("string");
+    const d = xml(raw);
+    const texts=[]; for(const t of d.getElementsByTagName("a:t")) texts.push(t.textContent);
+    const rel = zip.file("ppt/slides/_rels/"+n.split("/").pop()+".rels");
+    if(rel){
+      const rd = xml(await rel.async("string"));
+      for(const r of rd.getElementsByTagName("Relationship")){
+        if((r.getAttribute("Type")||"").includes("slideLayout")) layouts.add(r.getAttribute("Target"));
+      }
+    }
+    slides.push({
+      texts,
+      frames: d.getElementsByTagName("p:graphicFrame").length,
+      pics: d.getElementsByTagName("p:pic").length,
+      alt: (raw.match(/descr="[^"]{2,}"/g)||[]).length,
+      links: (raw.match(/hlinkClick/g)||[]).length,
+      slidenum: /type="slidenum"/.test(raw) || texts.some(t=>/\d+\s*\/\s*\d+/.test(t))
+    });
+  }
+  const charts = Object.keys(zip.files).filter(n=>/^ppt\/charts\/chart\d+\.xml$/.test(n)).length;
+  return {slides, charts, layoutCount: layouts.size};
+}
+
+async function parseDocx(zip){
+  const raw = await zip.file("word/document.xml").async("string");
+  const paras = raw.split(/<\/w:p>/).map(p=>{
+    const d = xml("<r xmlns:w=\"http://schemas.openxmlformats.org/wordprocessingml/2006/main\">"+p.replace(/^[\s\S]*?(?=<w:)/,"")+"</r>");
+    let s=""; for(const t of d.getElementsByTagName("w:t")) s+=t.textContent;
+    return s;
+  }).filter(s=>norm(s));
+  return {paras, tables:(raw.match(/<w:tbl>/g)||[]).length, images:(raw.match(/<w:drawing>/g)||[]).length};
+}
+
+/* ────────────────────────────────────────────────────────────
+   자동 채점
+   ──────────────────────────────────────────────────────────── */
+function pickSheet(sheets, re, idx){
+  return sheets.find(s=>re.test(s.name)) || sheets[idx] || null;
+}
+
+function scoreSearch(sheet, tplSet){
+  const tplStrings = new Set(TPL[tplSet]?.s1 || []);
+  const rows={};
+  for(const [ref,c] of Object.entries(sheet ? sheet.cells : {})){
+    const val = norm(c.v);
+    if(!val || tplStrings.has(h32(val))) continue;
+    const r = rowOf(ref), col = colOf(ref);
+    (rows[r] = rows[r] || {})[col] = val;
+  }
+  const entries=[];
+  for(const r of Object.keys(rows).map(Number).sort((a,b)=>a-b)){
+    const row = rows[r];
+    const tool = row.C || row.B || "";
+    const q = row.D || "";
+    const a = row.E || "";
+    if(!tool && !q) continue;
+    const low = tool.toLowerCase();
+    let kind=null, canon=null;
+    for(const [k,v] of ENGINES) if(low.includes(k)){ kind="engine"; canon=v; break; }
+    if(!kind) for(const [k,v] of AIS) if(low.includes(k)){ kind="ai"; canon=v; break; }
+    if(!kind && q) kind = "unknown";
+    entries.push({row:r, tool, canon: canon||tool, kind, q, a});
+  }
+  const eng = entries.filter(e=>e.kind==="engine");
+  const ai  = entries.filter(e=>e.kind==="ai");
+  const engKinds = new Set(eng.map(e=>e.canon));
+  const aiKinds  = new Set(ai.map(e=>e.canon));
+  const prompts = ai.map(e=>e.q).join("\n");
+  const tech = TECHNIQUES.filter(t=>t.re.test(prompts));
+  const cited = entries.filter(e=>e.a && (e.a.length>=20 || /https?:\/\//.test(e.a))).length;
+  return {entries, eng, ai, engKinds:[...engKinds], aiKinds:[...aiKinds], tech, cited};
+}
+
+function scoreExcelFx(sheets, set){
+  const all=[];
+  for(const s of sheets) for(const [ref,c] of Object.entries(s.cells)) if(c.f) all.push({sheet:s.name, ref, f:c.f, v:c.v});
+  return set.fx.map(def=>{
+    const hits = all.filter(x=>def.fn.some(fn => fn==="+"
+      ? /^=[^=]*[A-Z]\d+\s*\+/.test(x.f)
+      : new RegExp("\\b"+fn+"(\\.[A-Z]+)?\\s*\\(","i").test(x.f.replace(/_xlfn\./g,""))));
+    if(!hits.length){
+      const typed = all.find(x=>def.fn.some(fn=>fn!=="+" && new RegExp(fn,"i").test(x.f)));
+      return {...def, got:0, why: typed
+        ? `${typed.ref}에 "${typed.f}"라고만 적혀 있습니다. 함수는 이름 뒤에 괄호를 열고 값을 넣어야 계산됩니다.`
+        : "이 함수를 쓴 칸을 찾지 못했습니다."};
+    }
+    if(def.col){
+      const inCol = hits.filter(x=>colOf(x.ref)===def.col && rowOf(x.ref)>=def.from && rowOf(x.ref)<=def.to);
+      const need = def.to - def.from + 1;
+      if(inCol.length < need*0.8)
+        return {...def, got:0, why:`${def.col}열에 ${inCol.length}칸만 채웠습니다. ${need}칸을 모두 채워야 합니다.`};
+      if(def.rowAlign){
+        const bad = inCol.filter(x=>{
+          const own = rowOf(x.ref);
+          const refs = (x.f.match(/\$?[A-Z]{1,2}\$?(\d+)/g)||[]).map(m=>parseInt(m.match(/(\d+)$/)[1],10));
+          const rel = refs.filter(n=>n>=def.from && n<=def.to);
+          return rel.length && !rel.includes(own);
+        });
+        if(bad.length > inCol.length*0.5)
+          return {...def, got:0, why:`수식이 자기 행이 아닌 다른 행을 가리킵니다 (예: ${bad[0].ref} → ${bad[0].f.slice(0,34)}). 한 칸씩 밀렸습니다.`};
+      }
+      return {...def, got:def.pts, why:`${def.col}열 ${inCol.length}칸에 올바르게 들어갔습니다.`};
+    }
+    if(def.answer!=null){
+      const h = hits.find(x=>x.v!=null && String(x.v).trim()!=="");
+      if(h && Number(h.v)===def.answer) return {...def, got:def.pts, why:`${h.ref} 계산값 ${h.v} — 정답입니다.`};
+      if(h) return {...def, got:0, why:`${h.ref} 계산값이 ${h.v}입니다. 정답은 ${def.answer}입니다. 범위나 조건을 다시 보세요.`};
+      return {...def, got:def.pts, why:`${hits[0].ref}에 수식이 있습니다 (계산값이 저장되지 않아 수식만 확인).`};
+    }
+    return {...def, got:def.pts, why:`${hits[0].ref}에 올바르게 들어갔습니다.`};
+  });
+}
+
+function findTables(sheet, tplSet){
+  const tplStrings = new Set(TPL[tplSet]?.s3 || []);
+  const pts=[];
+  for(const [ref,c] of Object.entries(sheet ? sheet.cells : {})){
+    const val = norm(c.v);
+    if(!val || tplStrings.has(h32(val))) continue;
+    pts.push({c:colOf(ref).charCodeAt(0)*(colOf(ref).length>1?100:1), r:rowOf(ref), ref, val, f:c.f});
+  }
+  const seen=new Set(), blocks=[];
+  const key=p=>p.c+":"+p.r;
+  const map=new Map(pts.map(p=>[key(p),p]));
+  for(const p of pts){
+    if(seen.has(key(p))) continue;
+    const q=[p]; seen.add(key(p)); const blk=[];
+    while(q.length){
+      const cur=q.pop(); blk.push(cur);
+      for(let dc=-1;dc<=1;dc++) for(let dr=-1;dr<=1;dr++){
+        const nk=(cur.c+dc)+":"+(cur.r+dr);
+        if(map.has(nk) && !seen.has(nk)){ seen.add(nk); q.push(map.get(nk)); }
+      }
+    }
+    if(blk.length>=3){
+      const rowsN=new Set(blk.map(b=>b.r)).size, colsN=new Set(blk.map(b=>b.c)).size;
+      if(rowsN>=2 && colsN>=2){
+        /* 표 위에 제목 한 칸만 얹힌 경우가 많아, 칸이 2개 이상인 첫 줄을 머리글 줄로 봅니다 */
+        const rowNums=[...new Set(blk.map(b=>b.r))].sort((a,b)=>a-b);
+        const hr = rowNums.find(r=>blk.filter(b=>b.r===r).length>=2);
+        const header = hr==null ? [] : blk.filter(b=>b.r===hr);
+        const hasHeader = header.length>=2 && header.some(b=>isNaN(Number(b.val)));
+        blocks.push({cells:blk.length, rows:rowsN, cols:colsN, hasHeader, formulas:blk.filter(b=>b.f).length});
+      }
+    }
+  }
+  return blocks;
+}
+
+function scoreDocAuto(doc, kind){
+  if(kind==="pptx"){
+    const anyLink = doc.slides.reduce((s,x)=>s+x.links,0);
+    return {
+      pageNum: doc.slides.some(s=>s.slidenum) ? 1 : 0,
+      links: Math.min(2, anyLink*0.5),
+      linkCount: anyLink,
+      alt: doc.slides.some(s=>s.alt>0) ? 1 : 0,
+      master: doc.layoutCount===1 ? 1 : 0,
+      visuals: doc.slides.map(s=>s.frames + (doc.charts?0:0)),
+      charts: doc.charts
+    };
+  }
+  return {
+    pageNum: 0, links: 0, linkCount: 0,
+    alt: doc.images>0 ? 1 : 0,
+    master: doc.paras.length>6 ? 1 : 0,
+    charts: doc.tables
+  };
+}
+
+function studentSlideText(doc, kind, tplSet){
+  if(kind!=="pptx") {
+    const tpl = new Set();
+    return doc.paras.filter(p=>!tpl.has(norm(p))).map((p,i)=>({page:i+1, text:norm(p)}));
+  }
+  const tplSlides = TPL[tplSet]?.ppt || [];
+  return doc.slides.map((s,i)=>{
+    const tset = new Set(tplSlides[i] || []);
+    const own = s.texts.map(norm).filter(t=>t && !tset.has(h32(t)));
+    return {page:i+1, text: own.join(" \u00b7 "), frames:s.frames, pics:s.pics, blank: own.length===0};
+  });
+}
+
+/* ────────────────────────────────────────────────────────────
+   UI
+   ──────────────────────────────────────────────────────────── */
+const state={type:"other", xlsx:null, doc:null};
+const $=id=>document.getElementById(id);
+
+function renderTypes(){
+  $("types").innerHTML = Object.entries(SETS).map(([k,s])=>
+    `<button class="type-btn" type="button" data-k="${k}" aria-pressed="${k===state.type}">
+       <strong>${s.label}</strong><span>${s.sub}</span></button>`).join("");
+  $("types").querySelectorAll(".type-btn").forEach(b=>b.onclick=()=>{
+    state.type=b.dataset.k; state.doc=null; renderTypes(); renderDrops(); renderPreview(); sync();
+  });
+}
+function renderDrops(){
+  const s=SETS[state.type];
+  $("fileHint").textContent = `엑셀 1개 + ${s.docLabel} 1개`;
+  $("drops").innerHTML = `
+   <label class="drop ${state.xlsx?"filled":""}" data-slot="xlsx">
+     <span class="k">Submission 1</span><span class="t">엑셀 파일 (.xlsx)</span>
+     <span class="f">${state.xlsx?state.xlsx.name:"여기를 누르거나 파일을 끌어다 놓으세요"}</span>
+     <input type="file" accept=".xlsx" aria-label="엑셀 파일 선택">
+   </label>
+   <label class="drop ${state.doc?"filled":""}" data-slot="doc">
+     <span class="k">Submission 2</span><span class="t">${s.docLabel} (${s.docExt})</span>
+     <span class="f">${state.doc?state.doc.name:"여기를 누르거나 파일을 끌어다 놓으세요"}</span>
+     <input type="file" accept="${s.docExt}" aria-label="${s.docLabel} 선택">
+   </label>`;
+  $("drops").querySelectorAll(".drop").forEach(d=>{
+    const slot=d.dataset.slot;
+    d.querySelector("input").onchange=e=>{ if(e.target.files[0]){ state[slot]=e.target.files[0]; renderDrops(); sync(); } };
+    d.addEventListener("dragover",e=>{e.preventDefault(); d.classList.add("over");});
+    d.addEventListener("dragleave",()=>d.classList.remove("over"));
+    d.addEventListener("drop",e=>{ e.preventDefault(); d.classList.remove("over");
+      if(e.dataTransfer.files[0]){ state[slot]=e.dataTransfer.files[0]; renderDrops(); sync(); } });
+  });
+}
+function sync(){ $("run").disabled = !state.xlsx; }
+
+function renderPreview(){
+  const s=SETS[state.type];
+  const rows = [
+    ["정보 검색","30점","검색의 효과성 10 · GPT 활용 기법 5 · 출처 다양성 10 · 신뢰성 5",
+     "검색어와 프롬프트를 자기 말로 쓸수록, 서로 다른 도구를 많이 쓸수록 점수가 붙습니다."],
+    ["엑셀","30점","표 구조 5 · 함수 6문항 12 · 자체 표 함수 3 · 표 5 · 차트 5",
+     s.fx.map((f,i)=>`${i+1}. ${f.label.split(" — ")[0]}`).join(" · ")],
+    [s.doc==="pptx"?"발표자료":"제출 문서","40점", s.docItems.map(d=>`${d.label.replace(/^\d+페이지 — /,"")} ${d.max}`).join(" · "),
+     "가장 큰 덩어리입니다. 예선에서 이 40점을 통째로 놓친 학생이 절반이었습니다."]
+  ];
+  $("pvBody").innerHTML = `<div class="tablewrap"><table>
+    <thead><tr><th style="width:20%">영역</th><th style="width:12%">배점</th><th>채점 항목</th></tr></thead>
+    <tbody>${rows.map(r=>`<tr>
+      <td><strong>${r[0]}</strong></td><td class="pts">${r[1]}</td>
+      <td>${esc(r[2])}<span class="why">${esc(r[3])}</span></td></tr>`).join("")}</tbody></table></div>
+    ${s.provisional?`<p class="note" style="margin-top:10px">시각 유형 배점은 협회 확정 전 잠정 기준입니다.</p>`:""}`;
+}
+
+$("reset").onclick=()=>{ state.xlsx=null; state.doc=null; renderDrops(); sync(); $("result").hidden=true; $("err").innerHTML=""; };
+
+/* ── 채점 실행 ── */
+$("run").onclick = async () => {
+  const set = SETS[state.type];
+  $("err").innerHTML=""; $("run").disabled=true;
+  $("status").textContent = "파일을 여는 중…";
+  try{
+    for(const [f,name] of [[state.xlsx,"엑셀"],[state.doc,set.docLabel]]){
+      if(!f) continue;
+      if(await sniff(f)==="encrypted"){
+        $("err").innerHTML = `<div class="warn"><b>${name} 파일에 암호가 걸려 있습니다.</b><br>
+          이 페이지는 암호가 걸린 파일을 열 수 없습니다. 파일을 연 뒤
+          <code>파일 → 정보 → 통합 문서 보호 → 암호 설정</code>에서 암호를 지우고
+          다른 이름으로 저장한 파일을 넣어 주세요. 대회 제출용 원본은 그대로 두시면 됩니다.</div>`;
+        $("run").disabled=false; $("status").textContent=""; return;
+      }
+    }
+    const xl = await parseXlsx(await JSZip.loadAsync(state.xlsx));
+    let doc=null;
+    if(state.doc){
+      const z = await JSZip.loadAsync(state.doc);
+      doc = set.doc==="pptx" ? await parsePptx(z) : await parseDocx(z);
+    }
+    await grade(set, xl, doc);
+  }catch(e){
+    $("err").innerHTML = `<div class="warn"><b>파일을 읽지 못했습니다.</b><br>
+      ${String(e.message||e)}<br>확장자가 .xlsx / ${set.docExt} 인지, 파일이 손상되지 않았는지 확인해 주세요.</div>`;
+  }finally{
+    $("run").disabled=false; $("status").textContent="";
+  }
+};
+
+async function grade(set, xl, doc){
+  const s1 = pickSheet(xl.sheets, set.sheet1, 0);
+  const s3 = pickSheet(xl.sheets, set.sheet3, 2);
+  const search = scoreSearch(s1, set.tpl);
+  const fx = scoreExcelFx(xl.sheets, set);
+  const tables = findTables(s3, set.tpl);
+  const auto = doc ? scoreDocAuto(doc, set.doc) : null;
+  const pages = doc ? studentSlideText(doc, set.doc, set.tpl) : [];
+  const allBlank = doc ? pages.every(p=>p.blank || !p.text) : true;
+
+  /* 자동 항목 */
+  const A=[];
+  A.push({sec:"search", id:"s3", label:"② 출처 다양성 — 검색엔진 종류", max:5, got:Math.min(5,search.engKinds.length), auto:true,
+    why: search.engKinds.length ? `사용한 검색엔진: ${search.engKinds.join(", ")} (${search.engKinds.length}종)` : "검색엔진을 사용한 기록이 없습니다.",
+    advice:"서로 다른 검색엔진을 쓸수록 점수가 올라갑니다. Google 하나로 열 번 검색해도 1점입니다. Google · 네이버 · Bing · 유튜브처럼 도구를 바꿔가며 최소 3종은 쓰세요."});
+  A.push({sec:"search", id:"s4", label:"② 출처 다양성 — 생성형 AI 종류", max:5, got:Math.min(5,search.aiKinds.length), auto:true,
+    why: search.aiKinds.length ? `사용한 AI: ${search.aiKinds.join(", ")} (${search.aiKinds.length}종)` : "생성형 AI를 사용한 기록이 없습니다.",
+    advice:"AI도 종류 수로 점수가 붙습니다. ChatGPT · Gemini · Claude · 뤼튼처럼 서로 다른 AI에 같은 질문을 던지고, 어느 답이 더 나았는지까지 적으면 신뢰성 점수도 함께 올라갑니다."});
+  A.push({sec:"search", id:"s5", label:"① GPT 활용 기법", max:5, got:Math.min(5,search.tech.length), auto:true,
+    why: search.tech.length ? `확인된 기법: ${search.tech.map(t=>t.k).join(", ")}` : "프롬프트에서 특별한 기법이 확인되지 않았습니다.",
+    advice:"기법 하나당 1점입니다. ①'너는 게임 디자이너야'(역할 지정) ②'예를 들어 이런 식으로'(예시 제시) ③'단계별로 생각해서'(단계별 사고) ④'번호를 붙여 2가지만'(형식 지정) ⑤'5연패해서 화가 난 상황이야'(맥락 제시) — 다섯 개를 한 번씩만 써도 5점 만점입니다."});
+
+  const fxGot = fx.reduce((a,b)=>a+b.got,0);
+  const tblCount = Math.min(5, tables.length);
+  const chartCount = Math.min(5, xl.charts);
+  const headerOK = tables.filter(t=>t.hasHeader).length;
+  const structure = Math.max(0, Math.min(5, tables.length) - Math.min(2, tables.length - headerOK));
+  const ownFx = Math.min(3, tables.reduce((a,t)=>a+(t.formulas>0?1:0),0));
+
+  const E=[];
+  E.push({sec:"excel", id:"e1", label:"① 표 구조 & 헤더", max:5, got:Math.min(5,structure), auto:true,
+    why: tables.length ? `직접 만든 표 ${tables.length}개 중 ${headerOK}개에 열·행 제목이 있습니다.` : "Sheet3에 직접 만든 표가 없습니다.",
+    advice:"표를 만들 때 첫 줄에 반드시 열 제목을 넣으세요. 제목 없는 표는 표 하나당 1점씩 깎입니다."});
+  fx.forEach(f=>E.push({sec:"excel", id:f.id, label:"② "+f.label, max:f.pts, got:f.got, auto:true, why:f.why, advice:f.advice}));
+  E.push({sec:"excel", id:"e2", label:"② 직접 만든 표에 함수 적용", max:3, got:ownFx, auto:true,
+    why: ownFx ? `직접 만든 표 ${ownFx}개에 수식이 들어 있습니다.` : "직접 만든 표에 수식이 없습니다. 값을 손으로 적었습니다.",
+    advice:"Sheet3에서 만든 요약표의 숫자를 손으로 타이핑하지 말고 =SUM, =AVERAGE, =SUMIF로 계산하세요. 표 하나당 1점, 최대 3점입니다."});
+  E.push({sec:"excel", id:"e3", label:"③ 표 작성 개수", max:5, got:tblCount, auto:true,
+    why:`Sheet3에 직접 만든 표 ${tables.length}개를 찾았습니다.`,
+    advice:"Sheet3의 1~6단계 자리를 모두 채우세요. 표 하나당 1점, 5개면 만점입니다."});
+  E.push({sec:"excel", id:"e4", label:"④ 차트 작성 개수", max:5, got:chartCount, auto:true,
+    why:`엑셀 파일에 차트 ${xl.charts}개가 들어 있습니다.`,
+    advice:"차트는 반드시 표를 선택해 [삽입 → 차트]로 만드세요. 그림으로 붙여넣은 차트는 데이터와 연결되지 않아 0점입니다."});
+
+  const D=[];
+  if(!doc){
+    D.push({sec:"doc", id:"none", label:`${SETS[state.type].docLabel} 파일 없음`, max:40, got:0, auto:true,
+      why:"파일을 넣지 않았습니다. 채점할 수 없습니다.",
+      advice:`${SETS[state.type].docLabel}는 40점입니다. 전체 100점 중 가장 큰 덩어리예요. 완벽하지 않아도 반드시 제출하세요.`});
+  }else if(allBlank){
+    D.push({sec:"doc", id:"blank", label:"제출 양식을 아직 손대지 않았습니다", max:40, got:0, auto:true,
+      why:"모든 페이지가 원본 양식 그대로입니다. 글자가 하나도 바뀌지 않았습니다.",
+      advice:"이 40점이 지금 가장 큰 손실입니다. 예선에서 이 상태로 낸 학생이 절반이었어요. 표지 제목과 이름부터 쓰고, 2페이지 맨 위에 결론 한 문장만 적어도 8점 이상이 붙습니다."});
+  }
+  if(doc && auto && !allBlank){
+    const basic = auto.pageNum + auto.links + auto.alt + auto.master;
+    D.push({sec:"doc", id:"basic", label:"⑤ 기본 기능", max:5, got:basic, auto:true,
+      why:`페이지 번호 ${auto.pageNum?"O":"X"} · 이동 링크 ${auto.linkCount}개 · 대체텍스트 ${auto.alt?"O":"X"} · 서식 통일 ${auto.master?"O":"X"}`,
+      advice:"5분이면 얻는 5점입니다. ①오른쪽 아래에 1/4 형식 페이지 번호 ②목차에서 각 페이지로 가는 링크 4개 ③차트에 마우스 오른쪽 → 대체 텍스트 입력 ④슬라이드 마스터로 서식 통일. 예선에서 9명 중 8명이 이 5점을 그냥 버렸습니다."});
+  }
+
+  render(set, {A,E,D}, {search, pages, allBlank, auto, doc});
+}
+
+/* ── 화면 그리기 ── */
+let LAST=null;
+function render(set, groups, ctx){
+  LAST={set, groups, ctx};
+  const llm = ctx.doc && !ctx.allBlank ? set.docItems : [];
+  const pending = [
+    {sec:"search", id:"s1", label:"① 검색의 효과성 — 검색엔진", max:5,
+     rule:"검색어를 보고 판정: 문제를 본인이 완전히 이해하고 자기 말로 검색했으면 5점, 문제를 끊어서 검색했으면 3점, 문제 문장을 그대로 복사해 붙여넣었으면 1점, 검색 기록이 없으면 0점.",
+     advice:"문제 문장을 그대로 붙여넣으면 1점입니다. 문제를 읽고 '내가 알아야 할 것이 뭐지?'를 정한 뒤 자기 말로 짧게 검색하세요."},
+    {sec:"search", id:"s2", label:"① 검색의 효과성 — 생성형 AI", max:5,
+     rule:"프롬프트를 보고 판정: 본인이 완전히 이해하고 자기 상황에 맞춰 물었으면 5점, 문제를 끊어서 물었으면 3점, 예시 질문을 그대로 복사했으면 1점, 없으면 0점.",
+     advice:"엑셀 왼쪽에 적힌 예시 질문을 그대로 쓰면 1점입니다. 예시를 참고하되 내 문제 상황(내가 좋아하는 게임, 내가 정한 성격)으로 바꿔서 물으세요."},
+    {sec:"search", id:"s6", label:"③ 신뢰성 · 인용", max:5,
+     rule:"답과 직접 관련이 있는 검색 결과를 출처와 함께 적은 건수마다 1점, 최대 5점.",
+     advice:"검색 결과 칸에 답만 쓰지 말고 어디서 찾았는지 주소(URL)나 사이트 이름을 같이 적으세요. 한 건당 1점입니다."},
+    ...llm.map(d=>({sec:"doc", id:d.id, label:d.label, max:d.max, rule:d.rule, advice:d.advice}))
+  ];
+
+  const autoAll = [...groups.A, ...groups.E, ...groups.D];
+  paint(set, autoAll, pending.map(p=>({...p, got:null, auto:false, why:"판정 중…"})), ctx);
+  askClaude(set, autoAll, pending, ctx);
+}
+
+function paint(set, autoItems, judged, ctx){
+  const all = [...autoItems, ...judged];
+  const sum = sec => all.filter(i=>i.sec===sec).reduce((a,b)=>a+(b.got||0),0);
+  const cap = {search:30, excel:30, doc:40};
+  const secs = [
+    {k:"search", name:"정보 검색", sub:"Sheet1. 검색"},
+    {k:"excel",  name:"엑셀",     sub:"Sheet2 · Sheet3"},
+    {k:"doc",    name:set.doc==="pptx"?"발표자료":"제출 문서", sub:set.docLabel}
+  ];
+  const total = Math.round(secs.reduce((a,s)=>a+Math.min(cap[s.k],sum(s.k)),0)*10)/10;
+  const anyPending = judged.some(j=>j.got===null);
+
+  $("result").hidden=false;
+  $("totalN").textContent = anyPending ? "…" : total;
+  const gap = Math.max(0, 80-total);
+  $("verdict").innerHTML = anyPending
+    ? "자동 채점을 마쳤습니다. 내용 판정 항목을 확인하는 중입니다."
+    : (total>=80
+        ? `목표 <strong>80점</strong>을 넘었습니다. 아래 가이드로 남은 항목만 다듬으세요.`
+        : `목표 80점까지 <strong>${Math.round(gap*10)/10}점</strong> 남았습니다. 아래 가이드 위쪽 두세 개면 채울 수 있습니다.`);
+
+  $("bars").innerHTML = secs.map(s=>{
+    const v = Math.min(cap[s.k], Math.round(sum(s.k)*10)/10);
+    const pc = Math.round(v/cap[s.k]*100);
+    const color = pc>=75?"var(--got)":pc>=40?"var(--part)":"var(--miss)";
+    return `<div class="bar-row">
+      <div class="lbl">${s.name}<em>${s.sub}</em></div>
+      <div class="track"><div class="fill" style="width:${pc}%;background:${color}"></div></div>
+      <div class="val">${v}<small>/${cap[s.k]}</small></div></div>`;
+  }).join("");
+
+  $("tableSub").textContent = set.provisional
+    ? "시각 유형 배점은 협회 확정 전 잠정 기준입니다."
+    : "‘자동’은 파일에서 직접 확인한 항목, ‘판정’은 내용을 읽고 매긴 항목입니다.";
+
+  $("tables").innerHTML = secs.map(s=>{
+    const rows = all.filter(i=>i.sec===s.k);
+    if(!rows.length) return "";
+    return `<div class="tablewrap" style="margin-bottom:14px"><table>
+      <caption>${s.name} — ${Math.min(cap[s.k],Math.round(sum(s.k)*10)/10)} / ${cap[s.k]}점</caption>
+      <thead><tr><th style="width:38%">채점 항목</th><th>확인한 내용</th><th style="width:12%; text-align:right">점수</th></tr></thead>
+      <tbody>${rows.map(i=>{
+        const st = i.got===null ? "auto" : i.got>=i.max ? "got" : i.got>0 ? "part" : "miss";
+        const stx = i.got===null ? "판정 중" : i.got>=i.max ? "만점" : i.got>0 ? "부분" : "0점";
+        return `<tr>
+          <td><strong>${i.label}</strong><span class="why"><span class="chip ${i.auto?"auto":"auto"}">${i.auto?"자동":"판정"}</span></span></td>
+          <td>${esc(i.why||"")}</td>
+          <td class="pts"><span class="chip ${st}">${stx}</span><br>${i.got===null?"–":i.got}<small>/${i.max}</small></td>
+        </tr>`;}).join("")}</tbody></table></div>`;
+  }).join("");
+
+  const gaps = all.filter(i=>i.got!==null && i.got<i.max && i.advice)
+                  .sort((a,b)=>(b.max-b.got)-(a.max-a.got));
+  $("guides").innerHTML = gaps.length ? gaps.map((g,idx)=>`
+    <div class="guide ${idx===0&&(g.max-g.got)>=8?"big":""}">
+      <div class="gh"><strong>${g.label}</strong><span class="gain">+${Math.round((g.max-g.got)*10)/10}점 가능</span></div>
+      <p>${esc(g.advice)}</p></div>`).join("")
+    : `<div class="guide"><div class="gh"><strong>놓친 항목이 없습니다</strong></div><p>모든 채점 항목에서 만점을 받았습니다. 제출해도 좋습니다.</p></div>`;
+}
+function esc(s){ return String(s).replace(/[&<>]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;"}[c])); }
+
+/* ── 내용 판정 (Claude) ── */
+async function askClaude(set, autoItems, pending, ctx){
+  let sample=null;
+  /* Claude 뷰어 밖(GitHub Pages 등)에서는 claude 자체가 없습니다 — 자동 채점만 돌립니다 */
+  try{ if(typeof claude!=="undefined" && claude.use) sample = await claude.use("sample"); }catch(_){}
+  const fallback = () => paint(set, autoItems, pending.map(p=>({
+    ...p, got:0, auto:false,
+    why:"내용을 읽고 매기는 항목입니다. 아래 가이드에 적힌 기준을 보고 선생님·보호자와 함께 확인해 주세요."
+  })), ctx);
+  if(!sample){ fallback(); return; }
+
+  const searchDump = ctx.search.entries.slice(0,40).map(e=>
+    `- [${e.kind==="engine"?"검색엔진":e.kind==="ai"?"AI":"기타"}] 도구:${e.tool} / 입력:${e.q.slice(0,300)} / 결과:${e.a.slice(0,300)}`).join("\n") || "(기록 없음)";
+  const pageDump = ctx.pages.map(p=>`[${p.page}페이지] 학생이 직접 쓴 내용: ${p.text||"(없음 — 양식 그대로)"}${p.frames!=null?` / 표·차트 개체 ${p.frames}개`:""}`).join("\n") || "(문서 없음)";
+
+  const prompt = `당신은 GITC e-Combination 종목의 채점위원입니다. 아래 채점 기준에 따라 학생 제출물을 채점하세요.
+장애 학생 대상 대회이므로 후하지도 박하지도 않게, 기준 문구를 글자 그대로 적용하세요.
+
+## 채점할 항목
+${pending.map(p=>`### ${p.id} — ${p.label} (최대 ${p.max}점)\n기준: ${p.rule}`).join("\n")}
+
+## 학생이 Sheet1(검색)에 작성한 내용
+${searchDump}
+
+## 학생이 제출 문서에 직접 쓴 내용 (원본 양식 문구는 제외했습니다)
+${pageDump}
+
+## 출력 형식
+아래 JSON만 출력하세요. 다른 말은 쓰지 마세요.
+{"items":[{"id":"항목id","score":숫자,"why":"이 점수를 준 근거를 학생이 읽을 문장으로 한 줄","advice":"점수를 올리려면 무엇을 어떻게 해야 하는지 구체적으로 두 문장"}]}
+score는 최대 점수를 넘지 않는 0 이상의 숫자입니다. 근거는 학생이 실제로 쓴 내용을 인용해 구체적으로 쓰세요.`;
+
+  try{
+    const data = await sample.json(prompt, {modelTier:"default"});
+    const byId = Object.fromEntries((data.items||[]).map(i=>[i.id,i]));
+    paint(set, autoItems, pending.map(p=>{
+      const r = byId[p.id];
+      const got = r ? Math.max(0, Math.min(p.max, Number(r.score)||0)) : 0;
+      return {...p, got, auto:false,
+        why: r ? r.why : "판정하지 못했습니다. 선생님과 함께 확인해 주세요.",
+        advice: (r && r.advice) ? r.advice : p.advice};
+    }), ctx);
+  }catch(e){
+    if(e && e.code==="rate_limited"){
+      paint(set, autoItems, pending.map(p=>({...p, got:0, auto:false,
+        why:"지금은 판정 요청이 몰려 있습니다. 잠시 뒤 다시 채점해 주세요."})), ctx);
+    } else fallback();
+  }
+}
+
+renderTypes(); renderDrops(); renderPreview(); sync();
+</script>
+
+</body>
+</html>

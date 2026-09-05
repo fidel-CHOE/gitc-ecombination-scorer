@@ -1,0 +1,14 @@
+{
+  "name": "gitc-ecombination-scorer",
+  "version": "1.0.0",
+  "description": "2026 GITC e-Combination 자가채점기 — 제출물을 채점 루브릭대로 채점하고 연습 가이드를 뽑아줍니다",
+  "scripts": {
+    "build": "node tools/build.js",
+    "verify": "node tools/verify.js"
+  },
+  "devDependencies": {
+    "@xmldom/xmldom": "^0.9.0",
+    "jszip": "^3.10.1"
+  },
+  "license": "MIT"
+}
