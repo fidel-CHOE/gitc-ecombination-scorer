@@ -176,6 +176,26 @@ td.pts small{color:var(--muted); font-weight:500}
 .aimsg{font-size:13.5px; color:var(--accent); font-weight:500}
 .aimsg.bad{color:var(--miss)}
 
+/* 강사 모드 */
+.tmode{display:flex; align-items:center; gap:10px; flex-wrap:wrap; background:var(--surface-2); border:1.5px solid var(--line);
+  border-radius:var(--r); padding:10px 14px; margin-bottom:22px; font-size:14px}
+.tmode strong{font-weight:600}
+.tmode .grow{flex:1}
+.bdrop{background:var(--surface); border:1.5px dashed var(--line); border-radius:var(--r); padding:26px 20px;
+  display:flex; flex-direction:column; gap:6px; align-items:center; text-align:center; cursor:pointer; position:relative; transition:border-color .12s, background .12s}
+.bdrop:hover,.bdrop.over{border-color:var(--accent); background:var(--accent-soft)}
+.bdrop .t{font-size:16px; font-weight:600}
+.bdrop .f{font-size:13.5px; color:var(--muted)}
+.bdrop input{position:absolute; inset:0; opacity:0; cursor:pointer}
+.names{width:100%; font:inherit; font-size:14px; color:var(--ink); background:var(--surface); border:1.5px solid var(--line);
+  border-radius:var(--r); padding:9px 12px; margin-top:8px}
+table.batch{min-width:640px}
+table.batch td.n{font-family:"IBM Plex Mono",monospace; text-align:right; white-space:nowrap}
+table.batch td:nth-child(2){white-space:nowrap; color:var(--muted); font-size:13.5px}
+table.batch tr.warnrow td{background:var(--miss-soft)}
+table.batch .tag{font-size:11.5px; font-weight:600; padding:1px 7px; border-radius:999px; background:var(--miss-soft); color:var(--miss); white-space:nowrap}
+table.batch .tag.ok{background:var(--got-soft); color:var(--got)}
+
 footer.foot{margin-top:56px; padding-top:20px; border-top:1px solid var(--line); font-size:13px; color:var(--muted); display:flex; flex-direction:column; gap:6px}
 </style>
 
@@ -264,6 +284,51 @@ footer.foot{margin-top:56px; padding-top:20px; border-top:1px solid var(--line);
   <h3 class="sec">다음에 이것부터 — 연습 가이드</h3>
   <p class="sec-sub">놓친 점수가 큰 순서입니다. 위에서 두세 개만 해결해도 점수가 크게 오릅니다.</p>
   <div class="guides" id="guides"></div>
+</section>
+
+<section class="stage" id="batch" hidden aria-labelledby="bth">
+  <div class="stage-head"><span class="step-n" aria-hidden="true">★</span><h2 id="bth">강사 모드 — 여러 명 한 번에</h2></div>
+
+  <label class="note" for="nameList">학생 이름 (쉼표로 구분 · 파일 이름에서 이 이름을 찾아 짝을 맞춥니다)</label>
+  <input class="names" id="nameList" type="text" value="이승빈, 최호영, 심혜경, 김고운, 송영찬, 나지현, 박시온, 김연우, 김하랑">
+
+  <div class="bdrop" id="bdrop" style="margin-top:12px">
+    <span class="t">제출물을 통째로 끌어다 놓으세요</span>
+    <span class="f">학생 수 × 2개 (엑셀 + 발표자료). 유형은 파일 내용을 보고 알아서 판별합니다.</span>
+    <input type="file" id="bfiles" multiple accept=".xlsx,.pptx,.docx">
+  </div>
+
+  <div class="actions">
+    <button class="go" id="brun" disabled>전체 채점</button>
+    <button class="ghost" id="breset" type="button">다시 넣기</button>
+    <span class="note" id="bstatus">파일은 이 페이지 안에서만 열립니다. 어디로도 전송되지 않습니다.</span>
+  </div>
+
+  <div id="bout" hidden>
+    <h3 class="sec">자동 채점 결과</h3>
+    <p class="sec-sub" id="bsub"></p>
+    <div class="tablewrap" style="margin-bottom:16px"><table class="batch" id="btable"></table></div>
+
+    <div class="aibox">
+      <h4>내용 판정 — 전원을 한 번에</h4>
+      <p>나머지 50점(글을 읽어야 하는 항목)입니다. 아래 버튼으로 <strong>전원 분을 한 번에</strong> 복사해서 AI 채팅창에 붙여넣고, 받은 답을 다시 붙여넣으면 표가 100점 만점으로 채워집니다.</p>
+      <div class="airow">
+        <button class="go" id="bCopy" type="button">전원 복사하기</button>
+        <button class="ghost" id="bShow" type="button">복사될 내용 보기</button>
+        <span class="aimsg" id="bMsg"></span>
+      </div>
+      <textarea id="bText" hidden readonly rows="10" aria-label="복사될 내용"></textarea>
+
+      <label for="bPaste">AI가 준 답을 여기에 붙여넣으세요</label>
+      <p class="sub">답 전체를 그대로 붙여넣으면 됩니다. 학생별 점수만 알아서 찾아 반영합니다.</p>
+      <textarea id="bPaste" rows="5" placeholder="여기에 붙여넣기 (Ctrl+V)"></textarea>
+      <div class="airow" style="margin-top:10px">
+        <button class="go" id="bApply" type="button">점수 반영</button>
+        <button class="ghost" id="bTsv" type="button">표 복사 (노션·엑셀 붙여넣기용)</button>
+        <span class="aimsg" id="bApplyMsg"></span>
+      </div>
+    </div>
+  </div>
 </section>
 
 <footer class="foot">
@@ -1068,6 +1133,242 @@ $("aiApply").addEventListener("click", ()=>{
   }), AI.ctx);
   $("ai").scrollIntoView({behavior:"smooth", block:"start"});
 });
+
+/* ────────────────────────────────────────────────────────────
+   강사 모드 — 여러 명 한 번에 (주소 끝에 #teacher 를 붙이면 나타납니다)
+   ──────────────────────────────────────────────────────────── */
+
+/* 제출물이 어느 유형의 문제인지 파일 내용으로 판별합니다. 폴더·파일명은 믿지 않습니다. */
+function detectType(sheets, docExt){
+  if(docExt === ".docx") return "visual";
+  const s1 = pickSheet(sheets, /Searching|검색/i, 0);
+  const hs = new Set(s1 ? Object.values(s1.cells).map(c=>norm(c.v)).filter(Boolean).map(h32) : []);
+  let best="other", bestHit=-1;
+  for(const k of Object.keys(TPL)){
+    const hit = (TPL[k].s1||[]).filter(h=>hs.has(h)).length;
+    if(hit > bestHit){ bestHit = hit; best = k; }
+  }
+  return best;
+}
+
+const BATCH = { files: [], rows: [] };
+
+function nameList(){
+  return $("nameList").value.split(/[,·\n]/).map(s=>s.trim()).filter(Boolean);
+}
+function whoseFile(fileName){
+  const base = fileName.replace(/\.[^.]+$/, "");
+  for(const n of nameList()) if(base.includes(n)) return n;
+  return "(이름 못 찾음) " + base.slice(0, 28);
+}
+function bsync(){
+  $("brun").disabled = BATCH.files.length === 0;
+  $("bstatus").textContent = BATCH.files.length
+    ? `${BATCH.files.length}개 파일 · 학생 ${new Set(BATCH.files.map(f=>whoseFile(f.name))).size}명`
+    : "파일은 이 페이지 안에서만 열립니다. 어디로도 전송되지 않습니다.";
+}
+
+async function scoreOne(student, xlsxFile, docFile){
+  const r = { name: student, warn: [], judged: {} };
+  const xl = await parseXlsx(await JSZip.loadAsync(await xlsxFile.arrayBuffer()));
+  const ext = docFile ? docFile.name.slice(docFile.name.lastIndexOf(".")).toLowerCase() : null;
+  r.type = detectType(xl.sheets, ext);
+  const set = SETS[r.type];
+  r.typeLabel = set.label;
+
+  let doc = null;
+  if(docFile){
+    const z = await JSZip.loadAsync(await docFile.arrayBuffer());
+    doc = set.doc === "pptx" ? await parsePptx(z) : await parseDocx(z);
+  } else r.warn.push("발표자료 없음");
+
+  const s1 = pickSheet(xl.sheets, set.sheet1, 0);
+  const s3 = pickSheet(xl.sheets, set.sheet3, 2);
+  const se = scoreSearch(s1, set.tpl);
+  const fx = scoreExcelFx(xl.sheets, set);
+  const tb = findTables(s3, set.tpl);
+  const pages = doc ? studentSlideText(doc, set.doc, set.tpl) : [];
+  const allBlank = doc ? pages.every(p=>p.blank || !p.text) : true;
+
+  const headerOK = tb.filter(t=>t.hasHeader).length;
+  const structure = Math.max(0, Math.min(5, tb.length) - Math.min(2, tb.length - headerOK));
+  const ownFx = Math.min(3, tb.filter(t=>t.formulas>0).length);
+  const fxSum = fx.reduce((a,b)=>a+b.got, 0);
+  const da = (doc && !allBlank) ? scoreDocAuto(doc, set.doc) : null;
+
+  r.searchAuto = Math.min(5,se.engKinds.length) + Math.min(5,se.aiKinds.length) + Math.min(5,se.tech.length);
+  r.excel = structure + fxSum + ownFx + Math.min(5,tb.length) + Math.min(5,xl.charts);
+  r.basic = da ? (da.pageNum + da.links + da.alt + da.master) : 0;
+
+  if(allBlank) r.warn.push("발표자료 백지");
+  const left = pages.filter(p=>p.guide>0).map(p=>p.page);
+  if(left.length) r.warn.push(`안내문구 ${left.join(",")}쪽 남음`);
+  if(fxSum === 0) r.warn.push("엑셀 함수 0점");
+
+  r.pending = [
+    {id:"s1", label:"검색의 효과성 — 검색엔진", max:5},
+    {id:"s2", label:"검색의 효과성 — 생성형 AI", max:5},
+    {id:"s6", label:"신뢰성 · 인용", max:5},
+    ...((doc && !allBlank) ? set.docItems.map(d=>({id:d.id, label:d.label, max:d.max, rule:d.rule})) : [])
+  ];
+  r.content = {
+    search: se.entries.slice(0,30).map(e=>`[${e.kind==="engine"?"검색":"AI"}/${e.tool}] ${e.q.replace(/\s+/g," ").slice(0,180)}${/https?:\/\//.test(e.a||"")?"  (결과에 URL 있음)":""}`),
+    pages: pages.map(p=>`[${p.page}쪽]${p.frames!=null?` 표·차트 ${p.frames}개`:""}${p.guide?` ⚠안내문구 ${p.guide}개 남음`:""} ${(p.text||"(양식 그대로)").replace(/\s+/g," ").slice(0,700)}`)
+  };
+  return r;
+}
+
+function btotal(r){
+  const s16 = ["s1","s2","s6"].reduce((a,k)=>a+(r.judged[k]||0), 0);
+  const dsum = Object.keys(r.judged).filter(k=>k[0]==="d").reduce((a,k)=>a+r.judged[k], 0);
+  const search = Math.min(30, r.searchAuto + s16);
+  const excel = Math.min(30, r.excel);
+  const doc = Math.min(40, r.basic + dsum);
+  return { search, excel, doc, total: search + excel + doc };
+}
+
+function brender(){
+  const anyJudged = BATCH.rows.some(r=>Object.keys(r.judged).length);
+  $("bsub").textContent = anyJudged
+    ? "내용 판정까지 반영된 100점 만점 점수입니다."
+    : "자동 채점 구간입니다. 아래에서 나머지 50점을 채우면 총점이 완성됩니다.";
+  const head = `<thead><tr><th>학생</th><th>유형</th><th style="text-align:right">정보검색</th><th style="text-align:right">엑셀</th><th style="text-align:right">발표</th><th style="text-align:right">총점</th><th>확인할 것</th></tr></thead>`;
+  const rows = BATCH.rows.slice().sort((a,b)=>btotal(b).total - btotal(a).total).map(r=>{
+    const t = btotal(r);
+    return `<tr class="${r.warn.length?"warnrow":""}">
+      <td><strong>${esc(r.name)}</strong></td>
+      <td>${esc(r.typeLabel||"?")}</td>
+      <td class="n">${t.search}<small>/30</small></td>
+      <td class="n">${t.excel}<small>/30</small></td>
+      <td class="n">${t.doc}<small>/40</small></td>
+      <td class="n"><strong>${t.total}</strong><small>/100</small></td>
+      <td>${r.warn.length ? r.warn.map(w=>`<span class="tag">${esc(w)}</span>`).join(" ") : `<span class="tag ok">이상 없음</span>`}</td>
+    </tr>`;
+  }).join("");
+  $("btable").innerHTML = head + "<tbody>" + rows + "</tbody>";
+  $("bText").value = bprompt();
+}
+
+function bprompt(){
+  const L = [];
+  L.push(`당신은 GITC e-Combination 종목의 채점위원입니다. 아래 학생들의 제출물을 채점 기준에 따라 채점하세요.
+장애 학생 대상 대회이므로 후하지도 박하지도 않게, 기준 문구를 글자 그대로 적용하세요.
+
+## 공통 채점 기준
+- s1 검색의 효과성 — 검색엔진 (5점): 문제를 완전히 이해하고 자기 말로 검색했으면 5점, 문제를 끊어서 검색했으면 3점, 문제 문장을 그대로 붙여넣었으면 1점, 검색엔진 기록이 없으면 0점. 3건 이하로 적었으면 한 단계 낮춥니다.
+- s2 검색의 효과성 — 생성형 AI (5점): 같은 기준을 프롬프트에 적용합니다.
+- s6 신뢰성 · 인용 (5점): 답과 관련된 검색 결과를 출처와 함께 적은 건수마다 1점, 최대 5점. "(결과에 URL 있음)" 표시가 붙은 건수를 세면 됩니다.`);
+  const seen = new Set();
+  for(const r of BATCH.rows) for(const p of (r.pending||[])){
+    if(p.id[0] !== "d" || seen.has(r.type + p.id)) continue;
+    seen.add(r.type + p.id);
+    L.push(`- [${r.typeLabel}] ${p.id} ${p.label} (${p.max}점): ${p.rule}`);
+  }
+  L.push("");
+  for(const r of BATCH.rows){
+    if(!r.pending || !r.pending.length) continue;
+    L.push(`## ${r.name} (${r.typeLabel})`);
+    L.push(`채점할 항목: ${r.pending.map(p=>`${p.id}(최대 ${p.max})`).join(", ")}`);
+    L.push(`### 검색 기록`);
+    L.push(r.content.search.join("\n") || "(기록 없음)");
+    L.push(`### 제출 문서에 직접 쓴 내용`);
+    L.push(r.content.pages.join("\n") || "(문서 없음 — 발표자료 항목은 모두 0점)");
+    L.push("");
+  }
+  L.push(`## 출력 형식
+먼저 학생마다 아래 형식으로 딱 한 줄씩 출력하세요. 이 줄들은 프로그램이 읽습니다.
+이름: s1=숫자, s2=숫자, s6=숫자, d1=숫자, d2=숫자, ...
+그 다음에 학생별로 왜 그 점수인지, 무엇을 어떻게 고치면 오르는지 쉬운 말로 두세 문장씩 덧붙이세요.`);
+  return L.join("\n");
+}
+
+/* ── 강사 모드 배선 ── */
+(function(){
+  const drop = $("bdrop"), inp = $("bfiles");
+  if(!drop) return;
+  const take = list => { BATCH.files = [...list].filter(f=>/\.(xlsx|pptx|docx)$/i.test(f.name)); bsync(); };
+  inp.addEventListener("change", e=>take(e.target.files));
+  ["dragenter","dragover"].forEach(ev=>drop.addEventListener(ev, e=>{e.preventDefault(); drop.classList.add("over");}));
+  ["dragleave","drop"].forEach(ev=>drop.addEventListener(ev, e=>{e.preventDefault(); drop.classList.remove("over");}));
+  drop.addEventListener("drop", e=>take(e.dataTransfer.files));
+  $("nameList").addEventListener("input", bsync);
+
+  $("breset").addEventListener("click", ()=>{
+    BATCH.files = []; BATCH.rows = []; inp.value = ""; $("bout").hidden = true;
+    $("bPaste").value = ""; $("bMsg").textContent = ""; $("bApplyMsg").textContent = ""; bsync();
+  });
+
+  $("brun").addEventListener("click", async ()=>{
+    $("brun").disabled = true; $("bstatus").textContent = "채점 중…";
+    const groups = {};
+    for(const f of BATCH.files){ const w = whoseFile(f.name); (groups[w] = groups[w] || []).push(f); }
+    BATCH.rows = [];
+    const stub = (who, warn) => ({name:who, typeLabel:"?", searchAuto:0, excel:0, basic:0,
+      warn:[warn], judged:{}, pending:[], content:{search:[],pages:[]}});
+    for(const [who, fs] of Object.entries(groups)){
+      const xlsx = fs.find(f=>/\.xlsx$/i.test(f.name));
+      const doc  = fs.find(f=>/\.(pptx|docx)$/i.test(f.name));
+      if(!xlsx){ BATCH.rows.push(stub(who, "엑셀 파일 없음")); continue; }
+      try{ BATCH.rows.push(await scoreOne(who, xlsx, doc)); }
+      catch(err){ BATCH.rows.push(stub(who, "열지 못함: " + err.message)); }
+    }
+    $("bout").hidden = false; brender();
+    $("bstatus").textContent = `${BATCH.rows.length}명 채점 완료`;
+    $("brun").disabled = false;
+  });
+
+  $("bCopy").addEventListener("click", async ()=>{
+    const m = $("bMsg");
+    try{ await navigator.clipboard.writeText($("bText").value);
+      m.className="aimsg"; m.textContent=`${BATCH.rows.length}명 분을 복사했습니다. AI 채팅창에 붙여넣으세요.`; }
+    catch(_){ const ta=$("bText"); ta.hidden=false; ta.removeAttribute("readonly"); ta.focus(); ta.select();
+      m.className="aimsg"; m.textContent="아래 칸이 선택되었습니다. Ctrl+C 로 복사하세요."; }
+  });
+  $("bShow").addEventListener("click", ()=>{
+    const ta = $("bText"); ta.hidden = !ta.hidden;
+    $("bShow").textContent = ta.hidden ? "복사될 내용 보기" : "내용 접기";
+  });
+
+  $("bApply").addEventListener("click", ()=>{
+    const m = $("bApplyMsg");
+    let hit = 0;
+    for(const line of $("bPaste").value.split(/\n/)){
+      const idx = line.indexOf(":");
+      if(idx < 1) continue;
+      const who = line.slice(0, idx).replace(/[^가-힣A-Za-z0-9 ]/g, "").trim();
+      if(!who) continue;
+      const row = BATCH.rows.find(r=>r.name === who || r.name.includes(who) || who.includes(r.name));
+      if(!row) continue;
+      const re = /\b([a-z]\d{1,2})\s*[=:]\s*(\d+(?:\.\d+)?)/gi; let mm, got = false;
+      while((mm = re.exec(line))){
+        const p = (row.pending||[]).find(x=>x.id === mm[1].toLowerCase());
+        if(!p) continue;
+        row.judged[p.id] = Math.max(0, Math.min(p.max, Number(mm[2]))); got = true;
+      }
+      if(got) hit++;
+    }
+    if(!hit){ m.className="aimsg bad"; m.textContent="점수를 찾지 못했습니다. AI가 준 답을 통째로 붙여넣었는지 확인해 주세요."; return; }
+    m.className="aimsg"; m.textContent=`${hit}명의 점수를 반영했습니다.`;
+    brender();
+  });
+
+  $("bTsv").addEventListener("click", async ()=>{
+    const rows = BATCH.rows.slice().sort((a,b)=>btotal(b).total-btotal(a).total);
+    const tsv = ["학생\t유형\t정보검색\t엑셀\t발표\t총점\t확인할 것",
+      ...rows.map(r=>{ const t=btotal(r);
+        return [r.name, r.typeLabel||"?", t.search, t.excel, t.doc, t.total, r.warn.join(" / ")].join("\t"); })].join("\n");
+    const m = $("bApplyMsg");
+    try{ await navigator.clipboard.writeText(tsv);
+      m.className="aimsg"; m.textContent="표를 복사했습니다. 노션·엑셀에 그대로 붙여넣으면 됩니다."; }
+    catch(_){ m.className="aimsg bad"; m.textContent="복사에 실패했습니다."; }
+  });
+
+  const isTeacher = () => location.hash.toLowerCase().includes("teacher");
+  if(isTeacher()) document.querySelector("header.top .lede").insertAdjacentHTML("afterend",
+    `<div class="tmode"><strong>강사 모드</strong><span class="grow">아래에 여러 명을 한 번에 채점하는 칸이 있습니다. 학생에게는 주소에서 <code>#teacher</code> 를 뺀 주소를 주세요.</span></div>`);
+  $("batch").hidden = !isTeacher();
+  window.addEventListener("hashchange", ()=>{ $("batch").hidden = !isTeacher(); });
+})();
 
 renderTypes(); renderDrops(); renderPreview(); sync();
 </script>
