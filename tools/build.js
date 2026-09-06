@@ -35,4 +35,5 @@ ${body}
 fs.mkdirSync(path.join(root, "docs"), { recursive: true });
 fs.writeFileSync(path.join(root, "docs/index.html"), page);
 fs.writeFileSync(path.join(root, "docs/.nojekyll"), "");
+fs.writeFileSync(path.join(root, "docs/CNAME"), "gitc.visioncampus.co.kr\n");
 console.log("docs/index.html 생성 완료 —", page.length, "자");
