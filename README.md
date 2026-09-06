@@ -3,7 +3,7 @@
 2026 GITC(Global IT Challenge for Youth with Disabilities) **e-Combination** 종목 제출물을
 채점 루브릭 그대로 100점 만점으로 채점하고, 어디를 더 채워야 점수가 오르는지 알려주는 도구입니다.
 
-**👉 [바로 쓰기](https://GITHUB_OWNER.github.io/gitc-ecombination-scorer/)**
+**👉 [바로 쓰기](https://fidel-CHOE.github.io/gitc-ecombination-scorer/)**
 
 파일은 브라우저 안에서만 열립니다. 서버로 전송되지 않고, 어디에도 저장되지 않습니다.
 
