@@ -1,0 +1,596 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="2026 GITC 한국대표단 e-Combination 결선 준비 오리엔테이션 — 대회 개요, 준비 일정, 자가채점기 사용법">
+<style>
+  :root { color-scheme: light dark; }
+  body { margin: 0; font-family: system-ui, sans-serif; font-size: 14px; background: #f7f7f5; }
+  img { max-width: 100%; }
+  [hidden] { display: none !important; }
+</style>
+</head>
+<body>
+<title>2026 GITC e-Combination · 결선 준비 OT</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Gowun+Dodum&family=IBM+Plex+Sans+KR:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap">
+
+<style>
+:root{
+  --z:1;
+  --ground:#F5F7F8; --surface:#FFFFFF; --surface-2:#EDF1F3;
+  --ink:#141B24; --ink-2:#3C4854; --muted:#5C6774; --line:#DCE3E7;
+  --accent:#0E6E6B; --deep:#0A4F4D; --soft:#DCEFEE; --accent-ink:#0A4F4D;
+  --gold:#9A6B08; --gold-soft:#F6EBD2;
+  --red:#A63A2B; --red-soft:#F7E3DF;
+  --green:#1F7A4D; --green-soft:#DFF0E6;
+  --shadow:0 1px 2px rgba(20,27,36,.05), 0 6px 20px rgba(20,27,36,.06);
+  --r:12px; --bar:56px; --nav:68px;
+}
+html{font-size:calc(16px * var(--z))}
+*{box-sizing:border-box}
+body{
+  margin:0; background:var(--ground); color:var(--ink); font-size:1rem;
+  font-family:"IBM Plex Sans KR","Apple SD Gothic Neo","Malgun Gothic",system-ui,sans-serif;
+  line-height:1.6; -webkit-font-smoothing:antialiased;
+}
+.mono{font-family:"IBM Plex Mono",ui-monospace,monospace; font-variant-numeric:tabular-nums}
+
+/* ── 상단 막대 ── */
+/* 위·아래 막대는 글자 크기를 키워도 그대로 둡니다 — 내용이 쓸 자리를 뺏지 않도록 */
+.topbar{
+  position:fixed; top:0; left:0; right:0; height:var(--bar); z-index:20; font-size:14px;
+  display:flex; align-items:center; gap:12px; padding:0 16px;
+  background:rgba(255,255,255,.94); backdrop-filter:blur(8px);
+  border-bottom:1px solid var(--line);
+}
+.brand{font-weight:600; font-size:13px; color:var(--accent); white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+.brand b{color:var(--ink)}
+.spacer{flex:1}
+.zoom{display:flex; align-items:center; gap:6px; flex:0 0 auto}
+.zoom label{font-size:12px; color:var(--muted); font-weight:600; white-space:nowrap}
+.zoom input[type=range]{width:120px; accent-color:var(--accent); cursor:pointer}
+.zoom output{font-family:"IBM Plex Mono",monospace; font-size:13px; font-weight:600; color:var(--accent); min-width:46px; text-align:right}
+button.z{
+  font:inherit; font-size:15px; font-weight:600; line-height:1; width:30px; height:30px;
+  border:1.5px solid var(--line); background:var(--surface); color:var(--ink-2);
+  border-radius:8px; cursor:pointer; flex:0 0 auto;
+}
+button.z:hover{border-color:var(--accent); color:var(--accent)}
+.count{font-family:"IBM Plex Mono",monospace; font-size:13px; color:var(--muted); white-space:nowrap}
+.progress{position:fixed; top:var(--bar); left:0; height:3px; background:var(--accent); z-index:21; transition:width .25s}
+
+/* ── 슬라이드 ── */
+.deck{padding-top:var(--bar); padding-bottom:var(--nav)}
+.slide{display:none; min-height:calc(100vh - var(--bar) - var(--nav)); padding:2.2rem clamp(1rem,4vw,3rem) 1.5rem; max-width:72rem; margin:0 auto}
+.slide.on{display:block}
+
+
+h1{font-family:"Gowun Dodum",serif; font-size:2.4rem; line-height:1.2; margin:0 0 .4rem; letter-spacing:-.01em; text-wrap:balance}
+h2.sub{font-size:1rem; font-weight:400; color:var(--muted); margin:0 0 1.6rem; max-width:60ch}
+.slide.dark{background:var(--deep); color:#fff; max-width:none; padding:3rem clamp(1rem,4vw,3rem)}
+.slide.dark .inner{max-width:68rem; margin:0 auto}
+.slide.dark h1{color:#fff}
+.eyebrow{font-size:.8rem; font-weight:600; letter-spacing:.14em; color:var(--soft); margin:0 0 .6rem}
+
+.card{background:var(--surface); border:1.5px solid var(--line); border-radius:var(--r); padding:1.1rem 1.25rem; box-shadow:var(--shadow)}
+.card.soft{background:var(--soft); border-color:var(--accent)}
+.card.gold{background:var(--gold-soft); border-color:var(--gold)}
+.card.red{background:var(--red-soft); border-color:var(--red)}
+.card.green{background:var(--green-soft); border-color:var(--green)}
+.grid{display:grid; gap:.85rem}
+.g2{grid-template-columns:repeat(2,1fr)}
+.g3{grid-template-columns:repeat(3,1fr)}
+.g4{grid-template-columns:repeat(4,1fr)}
+@media(max-width:820px){ .g2,.g3,.g4{grid-template-columns:1fr} }
+.rows{display:flex; flex-direction:column; gap:.7rem}
+.mt{margin-top:1.1rem}
+
+.row{display:flex; align-items:flex-start; gap:.9rem}
+.n{
+  flex:0 0 auto; width:1.75rem; height:1.75rem; border-radius:50%; background:var(--accent); color:#fff;
+  display:grid; place-items:center; font-size:.85rem; font-weight:600; font-family:"IBM Plex Mono",monospace;
+}
+.n.gold{background:var(--gold)} .n.deep{background:var(--deep)}
+.row .t{font-weight:600; font-size:1.05rem; margin:0}
+.row .d{font-size:.88rem; color:var(--muted); margin:.1rem 0 0}
+.row .m{margin-left:auto; font-weight:600; color:var(--accent); white-space:nowrap; font-size:.95rem}
+
+.stat{font-family:"IBM Plex Mono",monospace; font-size:1.9rem; font-weight:600; line-height:1.1; color:var(--accent); letter-spacing:-.02em}
+.stat.gold{color:var(--gold)} .stat.red{color:var(--red)}
+.lbl{font-size:.8rem; color:var(--muted); margin-top:.25rem}
+.big{font-family:"IBM Plex Mono",monospace; font-size:3.6rem; font-weight:600; line-height:1; color:var(--accent); letter-spacing:-.03em}
+.tag{display:inline-block; font-size:.72rem; font-weight:600; padding:.15rem .6rem; border-radius:999px; background:var(--surface-2); color:var(--muted); white-space:nowrap}
+.tag.on{background:var(--accent); color:#fff}
+.tag.gold{background:var(--gold-soft); color:var(--gold)}
+.tag.teal{background:var(--soft); color:var(--accent-ink)}
+h3{font-size:1.1rem; font-weight:600; margin:0 0 .35rem}
+p{margin:0 0 .5rem}
+p:last-child{margin-bottom:0}
+.muted{color:var(--muted); font-size:.88rem}
+.lead{font-size:1.2rem; font-weight:600; color:var(--deep); line-height:1.5}
+ul.plain{list-style:none; margin:.5rem 0 0; padding:0}
+ul.plain li{position:relative; padding-left:1rem; margin-bottom:.5rem; font-size:.95rem; color:var(--ink-2)}
+ul.plain li::before{content:""; position:absolute; left:0; top:.6em; width:.35rem; height:.35rem; border-radius:50%; background:var(--accent)}
+img.shot{display:block; width:100%; border:1.5px solid var(--line); border-radius:var(--r); background:#F5F7F8}
+figure{margin:0}
+figcaption{font-size:.8rem; color:var(--muted); margin-top:.4rem}
+.url{font-family:"IBM Plex Mono",monospace; font-weight:600; word-break:break-all}
+.fill{display:inline-block; min-width:4.5rem; border-bottom:2px solid var(--muted); vertical-align:baseline}
+
+table{border-collapse:collapse; width:100%; font-size:.92rem}
+th,td{text-align:left; padding:.6rem .7rem; border-bottom:1px solid var(--line); vertical-align:top}
+thead th{font-size:.72rem; letter-spacing:.06em; text-transform:uppercase; color:var(--muted); background:var(--surface-2)}
+tbody tr:last-child td{border-bottom:none}
+.tw{overflow-x:auto; border:1.5px solid var(--line); border-radius:var(--r); background:var(--surface)}
+
+/* ── 아래 이동 막대 ── */
+.navbar{
+  position:fixed; bottom:0; left:0; right:0; z-index:20; height:var(--nav); font-size:14px;
+  display:flex; align-items:center; justify-content:center; gap:14px; padding:0 16px;
+  background:rgba(255,255,255,.94); backdrop-filter:blur(8px); border-top:1px solid var(--line);
+}
+button.nav{
+  font:inherit; font-size:15px; font-weight:600; padding:10px 20px; border-radius:999px;
+  border:1.5px solid var(--line); background:var(--surface); color:var(--ink-2); cursor:pointer;
+}
+button.nav:hover:not(:disabled){border-color:var(--accent); color:var(--accent)}
+button.nav:disabled{opacity:.35; cursor:not-allowed}
+button.nav.go{background:var(--accent); border-color:var(--accent); color:#fff}
+.hint{font-size:12px; color:var(--muted); text-align:center; line-height:1.35}
+@media(max-width:640px){ .hint{display:none} }
+:focus-visible{outline:3px solid var(--accent); outline-offset:2px; border-radius:4px}
+@media(prefers-reduced-motion:reduce){ .progress{transition:none} }
+</style>
+
+<header class="topbar">
+  <span class="brand"><b>e-Combination</b> 결선 준비 OT</span>
+  <span class="spacer"></span>
+  <span class="count mono" id="count">1 / 22</span>
+  <div class="zoom">
+    <label for="zr">글자 크기</label>
+    <button class="z" id="zminus" type="button" aria-label="글자 작게">−</button>
+    <input id="zr" type="range" min="50" max="250" step="10" value="100" aria-label="글자 크기 (50%~250%)">
+    <button class="z" id="zplus" type="button" aria-label="글자 크게">＋</button>
+    <output id="zout" class="mono" for="zr">100%</output>
+  </div>
+</header>
+<div class="progress" id="prog" style="width:4.5%"></div>
+
+<main class="deck" id="deck">
+
+<!-- 1 -->
+<section class="slide dark on">
+  <div class="inner">
+    <p class="eyebrow">2026 GLOBAL IT CHALLENGE · 한국대표단</p>
+    <h1 style="font-size:3rem">e-Combination<br>결선 준비 오리엔테이션</h1>
+    <p style="font-size:1.15rem; color:var(--soft); margin-top:1.2rem">10월 28일 · 베트남 다낭<br>목표는 한 사람도 빠짐없이 80점 이상</p>
+    <p style="margin-top:2rem; font-size:.85rem; color:#8FD8D3">비전캠퍼스 · 한국장애인재활협회</p>
+  </div>
+</section>
+
+<!-- 2 -->
+<section class="slide">
+  <h1>오늘 90분</h1>
+  <h2 class="sub">다섯 가지만 보고 마칩니다</h2>
+  <div class="rows">
+    <div class="card"><div class="row"><span class="n">1</span><div><p class="t">대회가 어떻게 생겼나</p><p class="d">다낭에서 무엇을 하게 되는지</p></div><span class="m">15분</span></div></div>
+    <div class="card"><div class="row"><span class="n">2</span><div><p class="t">앞으로의 시간 계획</p><p class="d">결선까지 몇 번, 무엇을 하는지</p></div><span class="m">15분</span></div></div>
+    <div class="card"><div class="row"><span class="n">3</span><div><p class="t">노션 — 자료가 모여 있는 곳</p><p class="d">7월 피드백과 예상 문제 8종</p></div><span class="m">20분</span></div></div>
+    <div class="card"><div class="row"><span class="n">4</span><div><p class="t">자가채점기 — 같이 해보기</p><p class="d">제출 전에 스스로 채점하는 법</p></div><span class="m">25분</span></div></div>
+    <div class="card"><div class="row"><span class="n">5</span><div><p class="t">질문 받기</p><p class="d">무엇이든 물어봐 주세요</p></div><span class="m">15분</span></div></div>
+  </div>
+</section>
+
+<!-- 3 -->
+<section class="slide">
+  <h1>우리가 가는 곳 — 베트남 다낭</h1>
+  <h2 class="sub">2026 Global IT Challenge for Youth with Disabilities 국제 본선</h2>
+  <div class="grid g4">
+    <div class="card"><div class="stat">10.27–29</div><div class="lbl">국제 본선 3일간</div></div>
+    <div class="card"><div class="stat">9개국</div><div class="lbl">참가국</div></div>
+    <div class="card"><div class="stat">약 230명</div><div class="lbl">참가자 (장애청소년 약 80명)</div></div>
+    <div class="card"><div class="stat gold">15주년</div><div class="lbl">첫 개최지 베트남으로</div></div>
+  </div>
+  <div class="card soft mt">
+    <p style="font-size:1.05rem; color:var(--accent-ink)">GITC는 2011년 베트남에서 시작했습니다. 15년 동안 41개국 5,000여 명의 장애청소년이 참가했고, 올해 15주년을 맞아 처음 열렸던 나라로 돌아갑니다.</p>
+    <p class="muted" style="color:var(--accent); margin-top:.6rem">공식 언어는 영어와 국제수어입니다. · 주최 보건복지부·㈜LG | 주관 GITC 조직위원회·LG전자·RI Korea·WTL·두이딴대학교</p>
+  </div>
+  <div class="card green mt">
+    <h3 style="color:var(--green)">우리 대표단 9명은 전원 다낭 현지에서 경기합니다.</h3>
+    <p class="muted" style="color:var(--ink-2)">화면 너머가 아니라, 그 자리에 직접 앉습니다.</p>
+  </div>
+</section>
+
+<!-- 4 -->
+<section class="slide">
+  <h1>네 종목 중 우리 종목</h1>
+  <h2 class="sub">우리는 e-Combination — 유일한 개인전입니다</h2>
+  <div class="grid g2">
+    <div class="card soft"><div class="row"><div><h3 style="color:var(--deep)">e-Combination</h3><p class="muted" style="color:var(--accent-ink)">정보 검색 · 엑셀 · 발표자료</p></div><span class="m"><span class="tag on">개인전</span></span></div></div>
+    <div class="card"><div class="row"><div><h3>e-Content</h3><p class="muted">AI로 영상 만들기</p></div><span class="m"><span class="tag">팀전</span></span></div></div>
+    <div class="card"><div class="row"><div><h3>e-Creative</h3><p class="muted">자율주행차 프로그래밍</p></div><span class="m"><span class="tag">팀전</span></span></div></div>
+    <div class="card"><div class="row"><div><h3>e-Interactive</h3><p class="muted">AI · 블록코딩 게임 만들기</p></div><span class="m"><span class="tag">팀전</span></span></div></div>
+  </div>
+  <div class="card gold mt">
+    <h3 style="color:var(--gold)">개인전이라는 말은 — 그날 옆에서 도와줄 사람이 없다는 뜻입니다.</h3>
+    <p class="muted" style="color:var(--ink-2)">그래서 지금 스스로 해본 만큼이 그날 할 수 있는 만큼입니다. 오늘 알려드릴 도구들은 전부 그 연습을 위한 것입니다.</p>
+  </div>
+</section>
+
+<!-- 5 -->
+<section class="slide">
+  <h1>100점은 이렇게 생겼습니다</h1>
+  <h2 class="sub">세 덩어리로 나뉩니다</h2>
+  <div class="grid g3">
+    <div class="card"><h3>정보 검색</h3><div class="big">30</div><p class="muted mt">엑셀 Sheet1<br>검색엔진과 AI로 조사하기</p></div>
+    <div class="card"><h3>엑셀</h3><div class="big">30</div><p class="muted mt">Sheet2 · Sheet3<br>함수 6문항 + 표와 차트</p></div>
+    <div class="card"><h3>발표자료</h3><div class="big" style="color:var(--gold)">40</div><p class="muted mt">파워포인트 4장<br>(시각 유형은 워드)</p></div>
+  </div>
+  <div class="card soft mt">
+    <p class="lead">100점 중 30점 넘게가 “잘 썼는가”가 아니라 “몇 개를 채웠는가”로 붙습니다.</p>
+    <p class="muted mt" style="color:var(--accent-ink)">검색 도구를 몇 종류 썼는지 · 표와 차트를 몇 개 만들었는지 · 마지막 장에 몇 줄 적었는지 — 세면 나오는 점수입니다. 잘 쓰는 것보다 개수를 채우는 것이 먼저입니다.</p>
+  </div>
+</section>
+
+<!-- 6 -->
+<section class="slide">
+  <h1>7월에 우리가 놓친 것</h1>
+  <h2 class="sub">누가 몇 점이었는지는 각자 카드에 있습니다. 여기서는 9명이 함께 놓친 것만 봅니다</h2>
+  <div class="rows">
+    <div class="card red"><div class="row"><span class="stat red" style="min-width:3.2rem">3명</span><div><h3>발표자료를 못 냈습니다</h3><p class="muted" style="color:var(--ink-2)">한 명은 엑셀 함수를 거의 다 맞히고 차트도 5개를 만들었는데 발표자료가 백지였습니다. 다른 한 명은 답안 대신 문제 파일을 잘못 올렸습니다. 실력이 부족한 게 아니라 끝까지 가지 못한 것입니다.</p></div></div></div>
+    <div class="card gold"><div class="row"><span class="stat gold" style="min-width:3.2rem">7명</span><div><h3>검색 결과에 주소(URL)를 안 적었습니다</h3><p class="muted" style="color:var(--ink-2)">검색은 열심히 했는데 어디서 찾았는지를 안 적었습니다. 붙여넣기 한 번에 1점씩, 최대 5점입니다.</p></div></div></div>
+    <div class="card gold"><div class="row"><span class="stat gold" style="min-width:3.2rem">8명</span><div><h3>5분이면 얻는 5점을 그냥 버렸습니다</h3><p class="muted" style="color:var(--ink-2)">페이지 번호 · 목차 이동 링크 · 대체 텍스트 · 글꼴 통일. 발표자료 40점 중 5점이 여기 있습니다.</p></div></div></div>
+  </div>
+  <p class="mt" style="font-weight:600; color:var(--accent)">세 가지 모두 실력 문제가 아닙니다. 확인만 하면 막을 수 있는 것들입니다.</p>
+</section>
+
+<!-- 7 -->
+<section class="slide">
+  <h1>그래서 순서를 바꿉니다</h1>
+  <h2 class="sub">엑셀부터 붙잡다가 발표자료를 못 낸 사람이 3명입니다</h2>
+  <div class="grid g4">
+    <div class="card"><span class="n">1</span><h3 class="mt">발표자료 뼈대 먼저</h3><p class="muted">4장을 먼저 만듭니다. 제목만 적어도 됩니다.</p><p style="font-weight:600; color:var(--accent); margin-top:.5rem">40점</p></div>
+    <div class="card"><span class="n">2</span><h3 class="mt">검색</h3><p class="muted">검색엔진 3종 이상, AI 3종 이상. 주소(URL)도 꼭 함께.</p><p style="font-weight:600; color:var(--accent); margin-top:.5rem">30점</p></div>
+    <div class="card"><span class="n">3</span><h3 class="mt">엑셀</h3><p class="muted">함수 6문항, 그리고 Sheet3에 표 5개 · 차트 5개.</p><p style="font-weight:600; color:var(--accent); margin-top:.5rem">30점</p></div>
+    <div class="card"><span class="n">4</span><h3 class="mt">마무리 5분</h3><p class="muted">페이지 번호 · 이동 링크 · 대체 텍스트 · 글꼴 통일.</p><p style="font-weight:600; color:var(--accent); margin-top:.5rem">5점</p></div>
+  </div>
+  <div class="card soft mt">
+    <p class="lead">완벽하지 않아도 됩니다. 다 채우지 못해도 점수는 나옵니다. 백지일 때만 0점입니다.</p>
+    <p class="muted mt" style="color:var(--accent-ink)">“오늘은 2페이지까지만 하고 내자”도 좋은 선택입니다.</p>
+  </div>
+</section>
+
+<!-- 8 -->
+<section class="slide dark">
+  <div class="inner">
+    <p class="eyebrow">우리의 목표</p>
+    <div style="font-family:'IBM Plex Mono',monospace; font-size:6rem; font-weight:600; line-height:1; letter-spacing:-.04em">80점</div>
+    <h1 style="font-size:1.9rem; color:#8FD8D3; margin-top:1.4rem">한 사람도 빠짐없이, 전원 80점 이상</h1>
+    <p style="font-size:1.05rem; color:var(--soft); margin-top:1rem; max-width:52ch">1등을 하자는 말이 아닙니다. 낼 수 있는 것을 다 내면 닿는 점수입니다. 7월에 백지로 낸 40점만 채워도 대부분 여기에 옵니다.</p>
+  </div>
+</section>
+
+<!-- 9 -->
+<section class="slide">
+  <h1>결선까지 이렇게 갑니다</h1>
+  <h2 class="sub">2주에 한 문제씩, 순서는 쉬운 것부터입니다</h2>
+  <div class="tw">
+    <table>
+      <thead><tr><th>회차</th><th>문제 세트</th><th>왜 이 순서인가</th><th>기간</th></tr></thead>
+      <tbody>
+        <tr><td style="font-weight:600; color:var(--accent)">1차</td><td><b>⑦ K-pop 글로벌 포용 투어</b></td><td class="muted">7월 예선과 함수 6문항이 1:1로 같습니다. 주제도 친숙합니다.</td><td class="mono"><span class="fill"></span> ~ <span class="fill"></span></td></tr>
+        <tr><td style="font-weight:600; color:var(--accent)">2차</td><td><b>⑧ AI 닥터봇</b></td><td class="muted">할 말이 많아 발표자료 점수를 받기 좋습니다.</td><td class="mono"><span class="fill"></span> ~ <span class="fill"></span></td></tr>
+        <tr><td style="font-weight:600; color:var(--accent)">3차</td><td><b>④ 2030 미래도시 모빌리티</b></td><td class="muted">⑦번에서 쓴 논리를 그대로 응용합니다. 반복 효과가 큽니다.</td><td class="mono"><span class="fill"></span> ~ <span class="fill"></span></td></tr>
+        <tr style="background:var(--gold-soft)"><td style="font-weight:600; color:var(--gold)">마무리</td><td><b>총정리 · 최종 점검</b></td><td class="muted">실전과 같은 조건으로 한 번 더. 파일 이름과 제출까지 연습합니다.</td><td class="mono"><span class="fill"></span> ~ <b>10/26</b></td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="card soft mt">
+    <div class="row"><h3 style="color:var(--deep); font-size:1.25rem">10월 28일 · 다낭 국제 본선</h3></div>
+    <p class="muted" style="color:var(--accent-ink); margin-top:.4rem">남은 예상 문제 4종(③⑤⑥ 등)은 더 하고 싶은 학생에게 추가로 드립니다.</p>
+  </div>
+</section>
+
+<!-- 10 -->
+<section class="slide">
+  <h1>한 회차는 이렇게 돌아갑니다</h1>
+  <h2 class="sub">2주 동안 다섯 걸음입니다</h2>
+  <div class="rows">
+    <div class="card"><div class="row"><span class="n">1</span><div><p class="t">문제를 받습니다</p><p class="d">노션에서 내 카드를 끌어옵니다</p></div><span class="m"><span class="tag teal">학생 · 보호자</span></span></div></div>
+    <div class="card"><div class="row"><span class="n">2</span><div><p class="t">풉니다</p><p class="d">발표자료 뼈대 → 검색 → 엑셀 → 마무리</p></div><span class="m"><span class="tag teal">학생</span></span></div></div>
+    <div class="card"><div class="row"><span class="n">3</span><div><p class="t">자가채점기로 확인</p><p class="d">제출 전에 스스로 한 번 채점합니다</p></div><span class="m"><span class="tag teal">학생 · 보호자</span></span></div></div>
+    <div class="card"><div class="row"><span class="n">4</span><div><p class="t">제출합니다</p><p class="d">파일 두 개, 이름 확인, 카드를 옮깁니다</p></div><span class="m"><span class="tag teal">학생 · 보호자</span></span></div></div>
+    <div class="card"><div class="row"><span class="n gold">5</span><div><p class="t">피드백을 받습니다</p><p class="d">점수와 “다음에 이것부터”가 카드에 붙습니다</p></div><span class="m"><span class="tag gold">강사</span></span></div></div>
+  </div>
+  <p class="mt" style="font-weight:600; color:var(--accent)">잘 안 되는 회차가 있어도 괜찮습니다. 회차는 점수를 매기려고 있는 게 아니라, 결선 전에 실수를 미리 다 해보려고 있습니다.</p>
+</section>
+
+<!-- 11 -->
+<section class="slide">
+  <h1>자료는 한 곳에 모아 뒀습니다</h1>
+  <h2 class="sub">노션 — 링크 하나로 들어가면 아래 세 가지가 있습니다</h2>
+  <div class="grid g3">
+    <div class="card"><span class="n">1</span><h3 class="mt">과제 진행 보드</h3><p class="muted">내 카드가 어디까지 왔는지 한눈에. 과제 → 진행중 → 검토 요청 → 검토중 → 검토 완료</p></div>
+    <div class="card"><span class="n">2</span><h3 class="mt">7월 예선 피드백</h3><p class="muted">9명 각자의 카드 안에 본인 피드백이 들어 있습니다. 어디서 몇 점을 놓쳤는지 항목별로.</p></div>
+    <div class="card"><span class="n gold">3</span><h3 class="mt">예상 문제 8종</h3><p class="muted">결선까지 풀어볼 문제와 해설서. 순서와 “이 문제로 무엇을 연습하나”가 적혀 있습니다.</p></div>
+  </div>
+  <div class="card soft mt">
+    <p class="lead">링크는 오늘 채팅창과 문자로 보내드립니다.</p>
+    <p class="muted mt" style="color:var(--accent-ink)">회원가입은 필요 없습니다. 즐겨찾기에 한 번만 넣어 두세요. 앞으로 문제도, 피드백도 전부 여기로 갑니다. 휴대폰에서도 열립니다 — 보호자님은 카드 옮기기만 하시면 되니 휴대폰으로도 충분합니다.</p>
+  </div>
+</section>
+
+<!-- 12 -->
+<section class="slide">
+  <h1>① 과제 진행 보드</h1>
+  <h2 class="sub">카드를 오른쪽으로 옮기기만 하면 됩니다</h2>
+  <div class="grid" style="grid-template-columns:repeat(5,1fr)">
+    <div class="card"><span class="tag on" style="background:#0F7E7A">문제 모음</span><p class="muted mt">아직 안 가져간 문제</p></div>
+    <div class="card"><span class="tag on" style="background:#0F7E7A">풀어볼 문제</span><p class="muted mt">내가 가져온 문제</p></div>
+    <div class="card"><span class="tag on" style="background:#9A6B08">진행중</span><p class="muted mt">지금 풀고 있어요</p></div>
+    <div class="card"><span class="tag on" style="background:#9A6B08">검토 요청</span><p class="muted mt">다 해서 냈어요</p></div>
+    <div class="card"><span class="tag on" style="background:#1F7A4D">검토 완료</span><p class="muted mt">피드백을 받았어요</p></div>
+  </div>
+  <div class="grid g2 mt">
+    <div class="card soft"><h3 style="color:var(--deep)">학생이 옮기는 두 번</h3>
+      <ul class="plain"><li>문제를 가져올 때 → <b>풀어볼 문제 · 진행중</b></li><li>다 해서 냈을 때 → <b>검토 요청</b></li></ul></div>
+    <div class="card"><h3>그 뒤는 제가 옮깁니다</h3><p class="muted">깜빡하고 못 옮겨도 괜찮습니다. 제출물만 도착하면 제가 옮기고 피드백을 붙여 드립니다.</p></div>
+  </div>
+</section>
+
+<!-- 13 -->
+<section class="slide">
+  <h1>② 7월 예선 피드백 — 내 카드 안에 있습니다</h1>
+  <h2 class="sub">‘검토 완료’ 칸에 각자의 카드가 하나씩 있습니다</h2>
+  <div class="grid g2">
+    <div class="card"><h3>카드를 열면 보이는 것</h3>
+      <ul class="plain">
+        <li>영역별 점수 — 검색 / 엑셀 / 발표자료</li>
+        <li>항목별로 몇 점을 왜 받았는지</li>
+        <li>80점까지 몇 점이 남았는지</li>
+        <li>가장 싼 점수부터 — 무엇을 먼저 고치면 되는지</li>
+        <li>다음 회차에 무엇을 연습하면 되는지</li>
+      </ul></div>
+    <div class="card soft"><h3 style="color:var(--deep)">미리 말씀드립니다</h3>
+      <p style="font-weight:600; color:var(--accent-ink)">이 점수는 7월에 받으신 실제 점수보다 낮습니다.</p>
+      <p class="muted" style="color:var(--accent-ink)">출처 다양성 같은 항목을 일부러 더 엄격하게 봤습니다.</p>
+      <p class="muted" style="color:var(--accent-ink)">여기서 80점을 넘으면 실제 대회에서는 더 여유가 있습니다. 낮게 나왔다고 실망하지 마세요 — 안전하게 보려고 낮춰 잡은 것입니다.</p>
+      <p style="font-weight:600; color:var(--deep); margin-top:.6rem">점수보다 “다음에 이것부터”를 봐 주세요.</p></div>
+  </div>
+  <div class="card gold mt"><p style="font-weight:600; color:var(--gold)">피드백은 혼자 읽지 말고 보호자·선생님과 같이 읽어 주세요. 5분이면 됩니다.</p></div>
+</section>
+
+<!-- 14 -->
+<section class="slide">
+  <h1>③ 예상 문제 8종</h1>
+  <h2 class="sub">실제 대회에서 나올 법한 문제를 미리 만들어 두었습니다</h2>
+  <div class="grid g2">
+    <div class="card"><div class="row"><span class="tag teal">1차 권장</span><div><p class="t">⑦ K-pop 글로벌 포용 투어</p><p class="d">모두가 즐기는 월드투어 도시 고르기</p></div></div></div>
+    <div class="card"><div class="row"><span class="tag teal">2차 권장</span><div><p class="t">⑧ AI 닥터봇</p><p class="d">먼 곳까지 찾아가는 AI 의료 로봇</p></div></div></div>
+    <div class="card"><div class="row"><span class="tag teal">3차 권장</span><div><p class="t">④ 2030 미래도시 모빌리티</p><p class="d">모두가 타는 미래 교통수단</p></div></div></div>
+    <div class="card"><div class="row"><span class="tag">도전</span><div><p class="t">③ 어스 히피 업사이클링</p><p class="d">헌 옷을 새 물건으로 — 엑셀이 약해도 하기 쉬움</p></div></div></div>
+    <div class="card"><div class="row"><span class="tag">도전</span><div><p class="t">⑥ 스마트 학교 정원</p><p class="d">센서와 로봇이 키우는 옥상 정원 — 표·차트 연습</p></div></div></div>
+    <div class="card"><div class="row"><span class="tag">도전</span><div><p class="t">⑤ 나만의 컬러 시그니처</p><p class="d">나에게 어울리는 색 찾기 — 상위권용</p></div></div></div>
+    <div class="card"><div class="row"><span class="tag gold">연습용</span><div><p class="t">① 스낵 파티</p><p class="d">답안이 들어 있습니다 — 만점 답안 구경용</p></div></div></div>
+    <div class="card"><div class="row"><span class="tag gold">연습용</span><div><p class="t">② AI 학습 혁신</p><p class="d">답안이 들어 있습니다 — 2페이지 채우는 예시</p></div></div></div>
+  </div>
+  <div class="card soft mt"><p class="muted" style="color:var(--accent-ink)">문제마다 파일 3개(문제·엑셀·발표자료 양식)가 들어 있습니다. ⑦번에는 해설서도 있습니다 — 과제를 다 낸 뒤에 읽는 자료입니다.</p></div>
+</section>
+
+<!-- 15 -->
+<section class="slide dark">
+  <div class="inner">
+    <p class="eyebrow">제출하기 전에</p>
+    <h1 style="font-size:3rem">자가채점기</h1>
+    <p style="font-size:1.1rem; color:var(--soft); margin-top:1rem; max-width:54ch">만든 파일을 넣으면 실제 채점 기준 그대로 100점 만점으로 채점하고, 어디를 더 채우면 몇 점이 오르는지 알려줍니다.</p>
+    <div style="background:#fff; border-radius:var(--r); padding:1.1rem 1.3rem; margin:1.5rem 0; display:inline-block">
+      <div class="url" style="font-size:1.5rem; color:var(--deep)">gitc.visioncampus.co.kr</div>
+      <div class="url" style="font-size:1rem; color:var(--accent)">/2026/final/self-scoring/</div>
+    </div>
+    <p style="color:#8FD8D3">설치 없음 · 회원가입 없음 · 로그인 없음 · 휴대폰에서도 됩니다</p>
+    <div style="background:#12605D; border-radius:var(--r); padding:1.1rem 1.3rem; margin-top:1.4rem; max-width:34rem">
+      <h3 style="color:#fff">파일은 어디로도 전송되지 않습니다</h3>
+      <p style="color:var(--soft); font-size:.92rem">채점은 여러분 컴퓨터 안에서만 일어납니다. 저장되지 않고, 창을 닫으면 사라집니다. 몇 번을 돌려도 괜찮습니다.</p>
+    </div>
+  </div>
+</section>
+
+<!-- 16 -->
+<section class="slide">
+  <h1>이렇게 생겼습니다</h1>
+  <h2 class="sub">위쪽 두 칸에 파일을 넣기만 하면 됩니다</h2>
+  <div class="grid" style="grid-template-columns:2fr 1fr">
+    <figure><img class="shot" src="home.webp" alt="자가채점기 첫 화면 — 위쪽에 매뉴얼·배점표 버튼, 아래에 엑셀 파일과 발표자료를 넣는 두 칸"><figcaption>첫 화면 — 위쪽 두 칸에 파일을 넣습니다</figcaption></figure>
+    <div class="card soft">
+      <h3 style="color:var(--deep)">고를 것이 없습니다</h3>
+      <p class="muted" style="color:var(--accent-ink)">어떤 문제 세트인지는 채점기가 파일 안을 보고 알아서 찾습니다.</p>
+      <h3 class="mt" style="color:var(--deep)">위쪽 두 버튼</h3>
+      <p class="muted" style="color:var(--accent-ink)"><b>매뉴얼</b> — 화면 그림을 보면서 따라 할 수 있습니다.<br><b>배점표</b> — 100점이 어떻게 매겨지는지 한 화면에.</p>
+    </div>
+  </div>
+  <div class="card gold mt">
+    <h3 style="color:var(--gold)">채점기는 백지로 남은 페이지와 지우지 않은 안내 문구를 찾아냅니다.</h3>
+    <p class="muted" style="color:var(--ink-2)">7월에 40점을 잃은 세 사람은 이걸 한 번만 돌렸으면 막을 수 있었습니다.</p>
+  </div>
+</section>
+
+<!-- 17 -->
+<section class="slide">
+  <h1>낮게 나와도 놀라지 마세요</h1>
+  <h2 class="sub">처음 나오는 점수는 아직 반쪽입니다</h2>
+  <div class="grid" style="grid-template-columns:2fr 1fr">
+    <figure><img class="shot" src="score.webp" alt="채점 결과 화면 — 총점 44점, 정보 검색 13/30, 엑셀 28/30, 발표자료 3/40"></figure>
+    <div class="card"><h3>① 채점하기</h3><p class="muted">파일 안을 세어서 알 수 있는 항목만 먼저 매깁니다. 함수 · 표 · 차트 · 검색 도구 종류.</p></div>
+  </div>
+  <div class="grid mt" style="grid-template-columns:2fr 1fr">
+    <figure><img class="shot" src="scored.webp" alt="AI 판정을 반영한 뒤의 채점 결과 — 총점 80점, 정보 검색 25/30, 엑셀 28/30, 발표자료 27/40"></figure>
+    <div class="card soft"><h3 style="color:var(--deep)">② AI에게 물어보기</h3><p class="muted" style="color:var(--accent-ink)">글을 읽어야 하는 나머지 절반이 채워집니다. 같은 파일이 44점에서 80점이 되었습니다.</p></div>
+  </div>
+  <p class="mt" style="font-weight:600; color:var(--accent); font-size:1.05rem">점수가 오른 게 아니라, 나머지 절반이 이제야 채점된 것입니다.</p>
+  <p class="muted">복사하기 → AI에 붙여넣기 → 답을 다시 붙여넣기. 건너뛰어도 괜찮습니다.</p>
+</section>
+
+<!-- 18 -->
+<section class="slide">
+  <h1>그리고 이것부터 고치세요</h1>
+  <h2 class="sub">놓친 점수가 큰 순서로 알려줍니다</h2>
+  <div class="grid" style="grid-template-columns:2fr 1fr">
+    <figure><img class="shot" src="guide.webp" alt="연습 가이드 — 2페이지 분석 결과 +4점, 4페이지 대화 대본 +4점, 3페이지 상위 5개 선정 +3점 순으로 정리된 목록"></figure>
+    <div class="card soft"><h3 style="color:var(--deep)">위에서 두세 개만</h3>
+      <p class="muted" style="color:var(--accent-ink)">전부 고칠 필요 없습니다. 맨 위 두세 개만 해결해도 점수가 크게 오릅니다.</p>
+      <p class="muted" style="color:var(--accent-ink)">고친 다음 ‘다시 넣기’를 누르고 한 번 더 채점해 보세요. 몇 번이든 괜찮습니다.</p></div>
+  </div>
+  <div class="card green mt">
+    <h3 style="color:var(--green)">제출 전에 한 번만 돌려 보세요. 그것만으로 7월의 실수는 다 막힙니다.</h3>
+    <p class="muted" style="color:var(--ink-2)">완벽하게 만들려고 돌리는 게 아닙니다. 빠뜨린 게 없는지 확인하려고 돌리는 겁니다.</p>
+  </div>
+</section>
+
+<!-- 19 -->
+<section class="slide">
+  <h1>보호자·선생님께</h1>
+  <h2 class="sub">한 회차에 20분이면 충분합니다. 그 20분이 가장 큰 점수를 지킵니다</h2>
+  <div class="card soft">
+    <p class="lead">대필은 해주시고, 대작은 하지 마세요.</p>
+    <p class="muted mt" style="color:var(--accent-ink)">아이가 말한 것을 대신 적어주는 것은 마음껏 도와주세요. 무엇을 말할지 정하는 것만 아이에게 남겨두시면 됩니다.</p>
+  </div>
+  <div class="grid g4 mt">
+    <div class="card"><p style="font-weight:600; color:var(--accent)">과제 받은 날</p><p class="muted">문제를 소리 내어 읽어주기 → “뭐 하라는 거야?” 한 마디</p><p class="muted" style="font-weight:600">10분</p></div>
+    <div class="card gold"><p style="font-weight:600; color:var(--gold)">제출 직전</p><p class="muted" style="color:var(--ink-2)">세 줄 확인 — 파일 두 개 맞니? / 4장 다 바뀌었어? / 이름 맞니?</p><p class="muted" style="font-weight:600">2분</p></div>
+    <div class="card"><p style="font-weight:600; color:var(--accent)">제출 후</p><p class="muted">노션 카드를 ‘검토 요청’으로</p><p class="muted" style="font-weight:600">10초</p></div>
+    <div class="card"><p style="font-weight:600; color:var(--accent)">피드백이 오면</p><p class="muted">아이와 같이 읽기</p><p class="muted" style="font-weight:600">5분</p></div>
+  </div>
+  <div class="card red mt">
+    <h3 style="color:var(--red)">가장 중요한 2분 — 제출 직전 세 줄</h3>
+    <p class="muted" style="color:var(--ink)">7월에 한 학생은 엑셀을 거의 만점 받을 만큼 잘 풀어놓고도 발표자료를 한 글자도 안 고친 채 제출해 40점을 잃었습니다. 실력이 부족한 게 아니라 확인할 사람이 없었을 뿐입니다. <b>그 2분이 40점입니다.</b></p>
+  </div>
+</section>
+
+<!-- 20 -->
+<section class="slide">
+  <h1>오늘 이후 할 일</h1>
+  <h2 class="sub">각자 세 가지씩입니다</h2>
+  <div class="grid g2">
+    <div class="card">
+      <span class="tag on">학생</span>
+      <div class="rows mt">
+        <div class="row"><span class="n">1</span><div><p class="t">노션 링크를 즐겨찾기에 넣기</p><p class="d">휴대폰·컴퓨터 둘 다</p></div></div>
+        <div class="row"><span class="n">2</span><div><p class="t">내 카드를 열고 7월 피드백 읽기</p><p class="d">보호자·선생님과 같이 5분</p></div></div>
+        <div class="row"><span class="n">3</span><div><p class="t">자가채점기에 7월 제출물 넣어보기</p><p class="d">그때 무엇을 놓쳤는지 눈으로 확인</p></div></div>
+      </div>
+    </div>
+    <div class="card soft">
+      <span class="tag on" style="background:var(--deep)">보호자 · 선생님</span>
+      <div class="rows mt">
+        <div class="row"><span class="n deep">1</span><div><p class="t">노션에서 아이 카드 위치 확인하기</p><p class="d">옮기는 연습을 한 번만 해보세요</p></div></div>
+        <div class="row"><span class="n deep">2</span><div><p class="t">‘보호자·선생님께 드리는 역할’ 읽기</p><p class="d">노션에 있습니다 · 10분</p></div></div>
+        <div class="row"><span class="n deep">3</span><div><p class="t">AI를 5분만 직접 써 보기</p><p class="d">“오늘 저녁 뭐 해먹지” 같은 것도 좋습니다</p></div></div>
+      </div>
+    </div>
+  </div>
+  <div class="card gold mt"><p style="font-weight:600; color:var(--gold)">1차 과제(⑦ K-pop 글로벌 포용 투어)는 <span class="fill" style="min-width:7rem"></span> 에 나갑니다. 노션 카드로 알려드립니다.</p></div>
+</section>
+
+<!-- 21 -->
+<section class="slide">
+  <h1>무엇이든 물어봐 주세요</h1>
+  <h2 class="sub">자주 나오는 질문을 미리 정리해 두었습니다</h2>
+  <div class="rows">
+    <div class="card"><h3>아이가 한 줄도 못 쓰고 멈춰 있어요.</h3><p class="muted">해설서의 ‘문장 틀’을 소리 내어 읽어 주세요. 빈칸 두 개만 채우면 문장이 완성됩니다. 백지가 무서운 것이지, 몰라서가 아닌 경우가 많습니다.</p></div>
+    <div class="card"><h3>시간이 부족한데 제가 좀 도와줘도 될까요?</h3><p class="muted">대신 채우시는 것보다 미완성인 채로 제출하는 것이 훨씬 낫습니다. 다 못 채워도 점수는 나옵니다. 백지일 때만 0점입니다.</p></div>
+    <div class="card"><h3>컴퓨터를 잘 못하는데 괜찮을까요?</h3><p class="muted">읽어주기와 제출 직전 세 줄 확인만 해주셔도 충분합니다. 카드 옮기기는 제가 대신 합니다.</p></div>
+    <div class="card"><h3>채점기 점수가 실제 점수인가요?</h3><p class="muted">아닙니다. 연습용이고, 실제보다 조금 엄격하게 봅니다. 여기서 80점을 넘으면 대회에서는 더 여유가 있습니다.</p></div>
+  </div>
+  <p class="mt" style="font-weight:600; color:var(--accent)">여기에 없는 질문은 지금 바로, 또는 언제든 연락 주세요.</p>
+</section>
+
+<!-- 22 -->
+<section class="slide dark">
+  <div class="inner">
+    <h1 style="font-size:3rem">10월 28일, 다낭에서</h1>
+    <p style="font-size:1.2rem; color:var(--soft); margin-top:1.4rem">완벽하지 않아도 됩니다. 끝까지 내는 것이 먼저입니다.<br>결선까지 함께 가겠습니다.</p>
+    <p style="margin-top:2rem; font-size:.9rem; color:#8FD8D3">비전캠퍼스 · gitc.visioncampus.co.kr</p>
+  </div>
+</section>
+
+</main>
+
+<nav class="navbar">
+  <button class="nav" id="prev" type="button">← 이전</button>
+  <p class="hint">← → 화면 넘기기<br>↑ ↓ 글자 크기</p>
+  <button class="nav go" id="next" type="button">다음 →</button>
+</nav>
+
+<script>
+(function(){
+  "use strict";
+  var slides = Array.prototype.slice.call(document.querySelectorAll(".slide"));
+  var i = 0;
+  var $ = function(id){ return document.getElementById(id); };
+
+  /* ── 화면 넘기기 ── */
+  function show(n){
+    i = Math.max(0, Math.min(slides.length - 1, n));
+    slides.forEach(function(s, k){ s.classList.toggle("on", k === i); });
+    $("count").textContent = (i + 1) + " / " + slides.length;
+    $("prog").style.width = ((i + 1) / slides.length * 100) + "%";
+    $("prev").disabled = i === 0;
+    $("next").disabled = i === slides.length - 1;
+    window.scrollTo(0, 0);
+    if (location.hash !== "#" + (i + 1)) history.replaceState(null, "", "#" + (i + 1));
+  }
+  $("prev").addEventListener("click", function(){ show(i - 1); });
+  $("next").addEventListener("click", function(){ show(i + 1); });
+
+  /* ── 글자 크기 ── */
+  var z = 100;
+  function setZ(v){
+    z = Math.max(50, Math.min(250, Math.round(v / 10) * 10));
+    document.documentElement.style.setProperty("--z", z / 100);
+    $("zr").value = z;
+    $("zout").textContent = z + "%";
+    try { localStorage.setItem("gitc-ot-zoom", String(z)); } catch (e) {}
+  }
+  $("zr").addEventListener("input", function(){ setZ(Number(this.value)); });
+  $("zplus").addEventListener("click", function(){ setZ(z + 10); });
+  $("zminus").addEventListener("click", function(){ setZ(z - 10); });
+
+  /* ── 키보드 ── */
+  document.addEventListener("keydown", function(e){
+    if (e.target.tagName === "INPUT" && e.key !== "ArrowUp" && e.key !== "ArrowDown") return;
+    switch (e.key) {
+      case "ArrowRight": case "PageDown": show(i + 1); e.preventDefault(); break;
+      case "ArrowLeft":  case "PageUp":   show(i - 1); e.preventDefault(); break;
+      case "ArrowUp":    setZ(z + 10); e.preventDefault(); break;
+      case "ArrowDown":  setZ(z - 10); e.preventDefault(); break;
+      case "Home":       show(0); e.preventDefault(); break;
+      case "End":        show(slides.length - 1); e.preventDefault(); break;
+    }
+  });
+
+  /* ── 손가락으로 넘기기 ── */
+  var x0 = null, y0 = null;
+  document.addEventListener("touchstart", function(e){
+    x0 = e.changedTouches[0].clientX; y0 = e.changedTouches[0].clientY;
+  }, { passive: true });
+  document.addEventListener("touchend", function(e){
+    if (x0 === null) return;
+    var dx = e.changedTouches[0].clientX - x0, dy = e.changedTouches[0].clientY - y0;
+    if (Math.abs(dx) > 70 && Math.abs(dx) > Math.abs(dy) * 1.6) show(dx < 0 ? i + 1 : i - 1);
+    x0 = null;
+  }, { passive: true });
+
+  /* ── 시작 ── */
+  var saved = null;
+  try { saved = localStorage.getItem("gitc-ot-zoom"); } catch (e) {}
+  setZ(saved ? Number(saved) : 100);
+  var h = parseInt((location.hash || "").slice(1), 10);
+  show(isNaN(h) ? 0 : h - 1);
+})();
+</script>
+
+</body>
+</html>

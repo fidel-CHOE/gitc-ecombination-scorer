@@ -46,6 +46,7 @@ ${body}
  * (소스에는 이미지를 넣지 않습니다 — 파일이 너무 커지고 diff 를 읽을 수 없게 됩니다)
  */
 function withShots(body) {
+  if (!body.includes("const SHOTS = {};")) return body;
   const p = path.join(root, "src", "manual-shots.json");
   if (!fs.existsSync(p)) {
     console.log("  (매뉴얼 캡쳐 없음 — tools/shoot.js 를 먼저 돌리세요)");
@@ -72,6 +73,18 @@ emit("index.html", "hub.html",
   "2026 GITC 한국대표단 e-Combination 자료실 — 자가채점기와 준비 자료");
 emit("2026/final/self-scoring/index.html", "app.html",
   "2026 GITC e-Combination 제출물을 채점 루브릭대로 채점하고 연습 가이드를 뽑아주는 자가채점 도구");
+emit("2026/final/edu_OT/index.html", "ot.html",
+  "2026 GITC 한국대표단 e-Combination 결선 준비 오리엔테이션 — 대회 개요, 준비 일정, 자가채점기 사용법");
+
+/* OT 자료에 들어가는 화면 캡쳐 */
+{
+  const from = path.join(root, "src/ot-media");
+  const to = path.join(root, "docs/2026/final/edu_OT");
+  if (fs.existsSync(from)) {
+    for (const f of fs.readdirSync(from)) fs.copyFileSync(path.join(from, f), path.join(to, f));
+    console.log("  edu_OT 이미지", fs.readdirSync(from).length, "개 복사");
+  }
+}
 
 fs.writeFileSync(path.join(root, "docs/.nojekyll"), "");
 fs.writeFileSync(path.join(root, "docs/CNAME"), DOMAIN + "\n");
