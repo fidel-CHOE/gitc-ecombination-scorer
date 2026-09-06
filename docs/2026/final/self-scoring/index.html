@@ -221,15 +221,10 @@ footer.foot{margin-top:56px; padding-top:20px; border-top:1px solid var(--line);
   <p class="lede">제출할 파일을 넣으면 실제 채점 루브릭 그대로 100점 만점으로 채점하고, 어디를 더 채워야 점수가 오르는지 알려줍니다. 제출 전에 스스로 먼저 채점해 보세요.</p>
 </header>
 
-<section class="stage" aria-labelledby="s1h">
-  <div class="stage-head"><span class="step-n" aria-hidden="true">1</span><h2 id="s1h">유형 고르기</h2></div>
-  <div class="types" role="group" aria-labelledby="s1h" id="types"></div>
-</section>
-
 <section class="stage" aria-labelledby="s2h">
   <div class="stage-head">
-    <span class="step-n" aria-hidden="true">2</span><h2 id="s2h">파일 넣기</h2>
-    <span class="hint" id="fileHint">엑셀 1개 + 파워포인트 1개</span>
+    <span class="step-n" aria-hidden="true">1</span><h2 id="s2h">파일 넣기</h2>
+    <span class="hint" id="fileHint">엑셀 1개 + 발표자료 1개</span>
   </div>
   <div class="drops" id="drops"></div>
   <div class="actions">
@@ -249,7 +244,9 @@ footer.foot{margin-top:56px; padding-top:20px; border-top:1px solid var(--line);
 </section>
 
 <section class="stage" id="result" hidden aria-labelledby="s3h" aria-live="polite">
-  <div class="stage-head"><span class="step-n" aria-hidden="true">3</span><h2 id="s3h">채점 결과</h2></div>
+  <div class="stage-head"><span class="step-n" aria-hidden="true">2</span><h2 id="s3h">채점 결과</h2></div>
+
+  <div id="typeline" class="tmode" hidden></div>
 
   <div class="scoreline">
     <div class="total"><span class="n mono" id="totalN">0</span><span class="d">/ 100점</span></div>
@@ -770,20 +767,14 @@ function studentSlideText(doc, kind, tplSet){
 /* ────────────────────────────────────────────────────────────
    UI
    ──────────────────────────────────────────────────────────── */
-const state={type:"other", xlsx:null, doc:null};
+const state={type:null, forced:null, xlsx:null, doc:null};
 const $=id=>document.getElementById(id);
 
-function renderTypes(){
-  $("types").innerHTML = Object.entries(SETS).map(([k,s])=>
-    `<button class="type-btn" type="button" data-k="${k}" aria-pressed="${k===state.type}">
-       <strong>${s.label}</strong><span>${s.sub}</span></button>`).join("");
-  $("types").querySelectorAll(".type-btn").forEach(b=>b.onclick=()=>{
-    state.type=b.dataset.k; state.doc=null; renderTypes(); renderDrops(); renderPreview(); sync();
-  });
-}
+/* 유형은 파일 내용을 보고 알아냅니다. 학생이 고를 필요가 없습니다. */
+function renderTypes(){}
+
 function renderDrops(){
-  const s=SETS[state.type];
-  $("fileHint").textContent = `엑셀 1개 + ${s.docLabel} 1개`;
+  $("fileHint").textContent = "엑셀 1개 + 발표자료 1개";
   $("drops").innerHTML = `
    <label class="drop ${state.xlsx?"filled":""}" data-slot="xlsx">
      <span class="k">Submission 1</span><span class="t">엑셀 파일 (.xlsx)</span>
@@ -791,9 +782,9 @@ function renderDrops(){
      <input type="file" accept=".xlsx" aria-label="엑셀 파일 선택">
    </label>
    <label class="drop ${state.doc?"filled":""}" data-slot="doc">
-     <span class="k">Submission 2</span><span class="t">${s.docLabel} (${s.docExt})</span>
-     <span class="f">${state.doc?state.doc.name:"여기를 누르거나 파일을 끌어다 놓으세요"}</span>
-     <input type="file" accept="${s.docExt}" aria-label="${s.docLabel} 선택">
+     <span class="k">Submission 2</span><span class="t">발표자료 또는 문서</span>
+     <span class="f">${state.doc?state.doc.name:"파워포인트(.pptx) 또는 워드(.docx)"}</span>
+     <input type="file" accept=".pptx,.docx" aria-label="발표자료 또는 문서 선택">
    </label>`;
   $("drops").querySelectorAll(".drop").forEach(d=>{
     const slot=d.dataset.slot;
@@ -807,13 +798,17 @@ function renderDrops(){
 function sync(){ $("run").disabled = !state.xlsx; }
 
 function renderPreview(){
-  const s=SETS[state.type];
+  const s = SETS[state.type || "other"];
+  const known = !!state.type;
   const rows = [
     ["정보 검색","30점","검색의 효과성 10 · GPT 활용 기법 5 · 출처 다양성 10 · 신뢰성 5",
      "검색어와 프롬프트를 자기 말로 쓸수록, 서로 다른 도구를 많이 쓸수록 점수가 붙습니다."],
     ["엑셀","30점","표 구조 5 · 함수 6문항 12 · 자체 표 함수 3 · 표 5 · 차트 5",
-     s.fx.map((f,i)=>`${i+1}. ${f.label.split(" — ")[0]}`).join(" · ")],
-    [s.doc==="pptx"?"발표자료":"제출 문서","40점", s.docItems.map(d=>`${d.label.replace(/^\d+페이지 — /,"")} ${d.max}`).join(" · "),
+     known ? s.fx.map((f,i)=>`${i+1}. ${f.label.split(" — ")[0]}`).join(" · ")
+           : "함수 6문항은 문제 세트마다 다릅니다. 파일을 넣으면 그 문제에 맞춰 채점합니다."],
+    [known ? (s.doc==="pptx"?"발표자료":"제출 문서") : "발표자료 · 문서","40점",
+     known ? s.docItems.map(d=>`${d.label.replace(/^\d+페이지 — /,"")} ${d.max}`).join(" · ")
+           : "제목·목차·소속/이름 5 · 분석 결과 10 · 방향성 10 · 메시지 명확성 10",
      "가장 큰 덩어리입니다. 예선에서 이 40점을 통째로 놓친 학생이 절반이었습니다."]
   ];
   $("pvBody").innerHTML = `<div class="tablewrap"><table>
@@ -821,18 +816,44 @@ function renderPreview(){
     <tbody>${rows.map(r=>`<tr>
       <td><strong>${r[0]}</strong></td><td class="pts">${r[1]}</td>
       <td>${esc(r[2])}<span class="why">${esc(r[3])}</span></td></tr>`).join("")}</tbody></table></div>
-    ${s.provisional?`<p class="note" style="margin-top:10px">시각 유형 배점은 협회 확정 전 잠정 기준입니다.</p>`:""}`;
+    ${(known && s.provisional)?`<p class="note" style="margin-top:10px">시각 유형 배점은 협회 확정 전 잠정 기준입니다.</p>`:""}`;
 }
 
-$("reset").onclick=()=>{ state.xlsx=null; state.doc=null; renderDrops(); sync(); $("result").hidden=true; $("err").innerHTML=""; };
+$("reset").onclick=()=>{ state.xlsx=null; state.doc=null; state.type=null; state.forced=null;
+  renderDrops(); renderPreview(); sync(); $("result").hidden=true; $("err").innerHTML=""; $("typeline").hidden=true; };
+
+/* 제출물이 어느 유형의 문제인지 파일 내용으로 판별합니다. 학생·강사 모두 고를 필요가 없습니다. */
+function detectType(sheets, docName){
+  if(docName && /\.docx$/i.test(docName)) return "visual";
+  const s1 = pickSheet(sheets, /Searching|검색/i, 0);
+  const hs = new Set(s1 ? Object.values(s1.cells).map(c=>norm(c.v)).filter(Boolean).map(h32) : []);
+  let best="other", bestHit=-1;
+  for(const k of Object.keys(TPL)){
+    const hit = (TPL[k].s1||[]).filter(h=>hs.has(h)).length;
+    if(hit > bestHit){ bestHit = hit; best = k; }
+  }
+  return best;
+}
+
+function renderTypeLine(){
+  const el = $("typeline"); if(!el) return;
+  const others = Object.keys(SETS).filter(k=>k!==state.type);
+  el.hidden = false;
+  el.innerHTML = `<strong>${esc(SETS[state.type].label)}</strong>
+    <span class="grow">문제로 채점했습니다 — ${esc(SETS[state.type].sub)}</span>
+    <span class="note">다른가요?</span>
+    ${others.map(k=>`<button class="ghost" type="button" data-force="${k}" style="padding:5px 12px; font-size:13.5px">${esc(SETS[k].label)}</button>`).join("")}`;
+  el.querySelectorAll("[data-force]").forEach(b=>b.onclick=()=>{
+    state.forced = b.dataset.force; $("run").click();
+  });
+}
 
 /* ── 채점 실행 ── */
 $("run").onclick = async () => {
-  const set = SETS[state.type];
   $("err").innerHTML=""; $("run").disabled=true;
   $("status").textContent = "파일을 여는 중…";
   try{
-    for(const [f,name] of [[state.xlsx,"엑셀"],[state.doc,set.docLabel]]){
+    for(const [f,name] of [[state.xlsx,"엑셀"],[state.doc,"발표자료"]]){
       if(!f) continue;
       if(await sniff(f)==="encrypted"){
         $("err").innerHTML = `<div class="warn"><b>${name} 파일에 암호가 걸려 있습니다.</b><br>
@@ -843,15 +864,19 @@ $("run").onclick = async () => {
       }
     }
     const xl = await parseXlsx(await JSZip.loadAsync(state.xlsx));
+    state.type = state.forced || detectType(xl.sheets, state.doc && state.doc.name);
+    const set = SETS[state.type];
+    renderPreview();
     let doc=null;
     if(state.doc){
       const z = await JSZip.loadAsync(state.doc);
       doc = set.doc==="pptx" ? await parsePptx(z) : await parseDocx(z);
     }
     await grade(set, xl, doc);
+    renderTypeLine();
   }catch(e){
     $("err").innerHTML = `<div class="warn"><b>파일을 읽지 못했습니다.</b><br>
-      ${String(e.message||e)}<br>확장자가 .xlsx / ${set.docExt} 인지, 파일이 손상되지 않았는지 확인해 주세요.</div>`;
+      ${String(e.message||e)}<br>확장자가 .xlsx / .pptx / .docx 인지, 파일이 손상되지 않았는지 확인해 주세요.</div>`;
   }finally{
     $("run").disabled=false; $("status").textContent="";
   }
@@ -1152,19 +1177,6 @@ $("aiApply").addEventListener("click", ()=>{
    강사 모드 — 여러 명 한 번에 (주소 끝에 #teacher 를 붙이면 나타납니다)
    ──────────────────────────────────────────────────────────── */
 
-/* 제출물이 어느 유형의 문제인지 파일 내용으로 판별합니다. 폴더·파일명은 믿지 않습니다. */
-function detectType(sheets, docExt){
-  if(docExt === ".docx") return "visual";
-  const s1 = pickSheet(sheets, /Searching|검색/i, 0);
-  const hs = new Set(s1 ? Object.values(s1.cells).map(c=>norm(c.v)).filter(Boolean).map(h32) : []);
-  let best="other", bestHit=-1;
-  for(const k of Object.keys(TPL)){
-    const hit = (TPL[k].s1||[]).filter(h=>hs.has(h)).length;
-    if(hit > bestHit){ bestHit = hit; best = k; }
-  }
-  return best;
-}
-
 const BATCH = { files: [], rows: [] };
 
 function nameList(){
@@ -1185,8 +1197,7 @@ function bsync(){
 async function scoreOne(student, xlsxFile, docFile){
   const r = { name: student, warn: [], judged: {} };
   const xl = await parseXlsx(await JSZip.loadAsync(await xlsxFile.arrayBuffer()));
-  const ext = docFile ? docFile.name.slice(docFile.name.lastIndexOf(".")).toLowerCase() : null;
-  r.type = detectType(xl.sheets, ext);
+  r.type = detectType(xl.sheets, docFile && docFile.name);
   const set = SETS[r.type];
   r.typeLabel = set.label;
 
