@@ -40,8 +40,26 @@ ${body}
 `;
 }
 
+/**
+ * 매뉴얼 화면 캡쳐를 페이지 안에 그대로 심습니다.
+ * src/manual-shots.json 이 있으면 `const SHOTS = {};` 를 실제 이미지로 바꿔치기합니다.
+ * (소스에는 이미지를 넣지 않습니다 — 파일이 너무 커지고 diff 를 읽을 수 없게 됩니다)
+ */
+function withShots(body) {
+  const p = path.join(root, "src", "manual-shots.json");
+  if (!fs.existsSync(p)) {
+    console.log("  (매뉴얼 캡쳐 없음 — tools/shoot.js 를 먼저 돌리세요)");
+    return body;
+  }
+  const shots = JSON.parse(fs.readFileSync(p, "utf8"));
+  const n = Object.keys(shots).length;
+  const bytes = JSON.stringify(shots).length;
+  console.log(`  매뉴얼 캡쳐 ${n}장 —`, Math.round(bytes / 1024), "KB");
+  return body.replace("const SHOTS = {};", "const SHOTS = " + JSON.stringify(shots) + ";");
+}
+
 function emit(relPath, srcName, description) {
-  const body = fs.readFileSync(path.join(root, "src", srcName), "utf8");
+  const body = withShots(fs.readFileSync(path.join(root, "src", srcName), "utf8"));
   const out = path.join(root, "docs", relPath);
   fs.mkdirSync(path.dirname(out), { recursive: true });
   fs.writeFileSync(out, shell(body, description));

@@ -23,7 +23,7 @@ global.DOMParser = require("@xmldom/xmldom").DOMParser;
 
 const html = fs.readFileSync(path.join(__dirname, "../src/app.html"), "utf8");
 const script = html.split("<script>").pop().split("</script>")[0];
-const core = script.split('const state={type:"other"')[0];
+const core = script.split("const state={type:null")[0];
 eval(core.replace(/^"use strict";/, "") + `
 ;Object.assign(global,{SETS,TPL,parseXlsx,parsePptx,parseDocx,pickSheet,
   scoreSearch,scoreExcelFx,findTables,scoreDocAuto,studentSlideText});`);

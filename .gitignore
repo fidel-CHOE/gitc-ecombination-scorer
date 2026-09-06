@@ -7,3 +7,6 @@ package-lock.json
 *.docx
 제출물/
 samples/
+
+# 캡쳐용 데모 파일 (tools/make-demo.py 가 다시 만듭니다)
+.demo/

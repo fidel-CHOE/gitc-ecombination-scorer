@@ -197,6 +197,50 @@ table.batch .tag{font-size:11.5px; font-weight:600; padding:1px 7px; border-radi
 table.batch .tag.ok{background:var(--got-soft); color:var(--got)}
 
 footer.foot{margin-top:56px; padding-top:20px; border-top:1px solid var(--line); font-size:13px; color:var(--muted); display:flex; flex-direction:column; gap:6px}
+
+/* 상단 도움말 버튼 */
+.topbtns{display:flex; gap:8px; flex-wrap:wrap; margin-top:4px}
+button.help{font:inherit; font-size:14px; font-weight:600; background:var(--surface); border:1.5px solid var(--line);
+  color:var(--ink-2); border-radius:999px; padding:7px 16px; cursor:pointer; display:inline-flex; align-items:center; gap:7px}
+button.help:hover{border-color:var(--accent); color:var(--accent)}
+button.help svg{width:15px; height:15px; flex:0 0 auto}
+
+/* 모달 */
+.modal{position:fixed; inset:0; z-index:50; background:rgba(10,17,24,.5); display:grid; place-items:end center; padding:24px 16px 0}
+@media(min-width:720px){.modal{place-items:center; padding:32px 16px}}
+.modal[hidden]{display:none!important}
+.sheetbox{background:var(--ground); border-radius:14px 14px 0 0; width:100%; max-width:760px; max-height:92vh;
+  display:flex; flex-direction:column; box-shadow:0 -8px 40px rgba(0,0,0,.28); overflow:hidden}
+@media(min-width:720px){.sheetbox{border-radius:14px; box-shadow:0 20px 60px rgba(0,0,0,.32)}}
+.sheethead{display:flex; align-items:center; gap:12px; padding:18px 22px 14px; border-bottom:1.5px solid var(--line); background:var(--surface)}
+.sheethead h2{margin:0; font-size:19px; font-weight:600; letter-spacing:-.01em}
+.sheethead .sp{flex:1}
+button.x{font:inherit; font-size:14px; font-weight:600; background:var(--surface-2); border:none; color:var(--ink-2);
+  border-radius:999px; padding:7px 15px; cursor:pointer}
+button.x:hover{background:var(--accent-soft); color:var(--accent-ink)}
+.sheetbody{overflow-y:auto; padding:22px; -webkit-overflow-scrolling:touch}
+.sheetbody > :first-child{margin-top:0}
+.sheetbody h3{font-size:16.5px; font-weight:600; margin:30px 0 8px; letter-spacing:-.01em}
+.sheetbody h3:first-of-type{margin-top:0}
+.sheetbody p{margin:0 0 12px; font-size:14.5px; color:var(--ink-2)}
+.sheetbody .lead{background:var(--accent-soft); color:var(--accent-ink); border-radius:var(--r); padding:14px 16px; font-size:14.5px; margin-bottom:22px}
+.sheetbody table{min-width:0}
+.rsec{display:flex; align-items:baseline; gap:10px; margin:28px 0 10px}
+.rsec:first-child{margin-top:0}
+.rsec h3{margin:0}
+.rsec .tot{font-family:"IBM Plex Mono",monospace; font-size:14px; font-weight:600; color:var(--accent);
+  background:var(--accent-soft); padding:2px 10px; border-radius:999px}
+td.how{font-size:13.5px; color:var(--ink-2)}
+.step{counter-increment:mstep; margin:0 0 30px}
+.step .sh{display:flex; gap:11px; align-items:baseline; margin-bottom:8px}
+.step .sn{font-family:"IBM Plex Mono",monospace; font-size:13px; font-weight:600; color:#fff; background:var(--accent);
+  border-radius:999px; min-width:24px; height:24px; padding:0 7px; display:grid; place-items:center; flex:0 0 auto; align-self:center}
+.step .sh strong{font-size:16.5px; font-weight:600}
+.step p{margin:0 0 12px}
+.shot{display:block; width:100%; border:1.5px solid var(--line); border-radius:var(--r); background:#F5F7F8; box-shadow:var(--shadow)}
+.cap{font-size:13px; color:var(--muted); margin:7px 0 0}
+.sheetbody code{font-family:"IBM Plex Mono",monospace; background:var(--surface-2); padding:1px 6px; border-radius:4px; font-size:13.5px}
+.tipbox{background:var(--part-soft); border-left:3px solid var(--part); border-radius:0 var(--r) var(--r) 0; padding:13px 16px; font-size:14px; color:var(--ink); margin:0 0 12px}
 </style>
 
 <div class="wrap">
@@ -205,6 +249,16 @@ footer.foot{margin-top:56px; padding-top:20px; border-top:1px solid var(--line);
   <div class="eyebrow">2026 GITC 한국대표단</div>
   <h1>e-Combination 자가채점기</h1>
   <p class="lede">제출할 파일을 넣으면 실제 채점 루브릭 그대로 100점 만점으로 채점하고, 어디를 더 채워야 점수가 오르는지 알려줍니다. 제출 전에 스스로 먼저 채점해 보세요.</p>
+  <div class="topbtns">
+    <button class="help" id="btnManual" type="button">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 4h7a3 3 0 0 1 3 3v13a2.5 2.5 0 0 0-2.5-2.5H2z"/><path d="M22 4h-7a3 3 0 0 0-3 3v13a2.5 2.5 0 0 1 2.5-2.5H22z"/></svg>
+      매뉴얼 — 쓰는 법
+    </button>
+    <button class="help" id="btnRubric" type="button">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 3h6l1 2h3a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1h3z"/><path d="M8 11h8M8 15h5"/></svg>
+      배점표 — 100점 기준
+    </button>
+  </div>
 </header>
 
 <section class="stage" aria-labelledby="s2h">
@@ -333,6 +387,16 @@ footer.foot{margin-top:56px; padding-top:20px; border-top:1px solid var(--line);
   <div>자동 채점 항목은 파일 구조에서 직접 확인한 결과이고, 내용 판정 항목은 AI가 루브릭 문구대로 판단합니다. 최종 점수는 대회 채점위원의 판단과 다를 수 있습니다.</div>
 </footer>
 
+</div>
+
+<div class="modal" id="modal" hidden>
+  <div class="sheetbox" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+    <div class="sheethead">
+      <h2 id="modalTitle"></h2><span class="sp"></span>
+      <button class="x" id="modalX" type="button">닫기</button>
+    </div>
+    <div class="sheetbody" id="modalBody"></div>
+  </div>
 </div>
 
 <script>
@@ -755,6 +819,141 @@ function studentSlideText(doc, kind, tplSet){
    ──────────────────────────────────────────────────────────── */
 const state={type:null, forced:null, xlsx:null, doc:null};
 const $=id=>document.getElementById(id);
+
+/* ────────────────────────────────────────────────────────────
+   배점표 · 매뉴얼
+   SHOTS 는 빌드할 때 tools/build.js 가 화면 캡쳐로 채웁니다.
+   ──────────────────────────────────────────────────────────── */
+const SHOTS = {};
+
+const RUBRIC = [
+  {sec:"정보 검색", total:30, where:"엑셀 Sheet1", items:[
+    {n:"검색의 효과성 — 검색엔진", p:5, by:"판정",
+     how:"문제를 이해하고 <b>자기 말로</b> 검색했으면 5점 · 문제를 끊어서 검색했으면 3점 · <b>문제 문장을 그대로 붙여넣었으면 1점</b>"},
+    {n:"검색의 효과성 — 생성형 AI", p:5, by:"판정",
+     how:"같은 기준을 프롬프트에 적용합니다. 예시 질문을 그대로 복사하면 1점"},
+    {n:"GPT 활용 기법", p:5, by:"자동",
+     how:"<b>기법 1개당 1점.</b> ①역할 지정 ②예시 제시 ③단계별 사고 ④형식 지정 ⑤맥락 제시 — 다섯 개를 한 번씩만 써도 만점"},
+    {n:"출처 다양성 — 검색엔진", p:5, by:"자동",
+     how:"<b>서로 다른 검색엔진 종류 × 1점.</b> 같은 엔진으로 열 번 검색해도 1점입니다"},
+    {n:"출처 다양성 — 생성형 AI", p:5, by:"자동",
+     how:"<b>서로 다른 AI 종류 × 1점.</b> 같은 질문을 다섯 개 AI에 한 번씩만 던져도 만점"},
+    {n:"신뢰성 · 인용", p:5, by:"판정",
+     how:"답과 관련된 검색 결과를 <b>출처(URL)와 함께</b> 적은 건수 × 1점"}
+  ]},
+  {sec:"엑셀", total:30, where:"엑셀 Sheet2 · Sheet3", items:[
+    {n:"함수 6문항", p:12, by:"자동",
+     how:"<b>문항당 2점.</b> 함수를 썼어도 답이 틀리면 0점, 한 칸만 계산하고 아래로 복사하지 않아도 0점"},
+    {n:"표 구조 & 헤더", p:5, by:"자동",
+     how:"직접 만든 표마다 <b>열·행 제목</b>이 있는지. 빠진 표 1개당 1점 차감"},
+    {n:"직접 만든 표에 함수 적용", p:3, by:"자동",
+     how:"손으로 타이핑하지 않고 <code>=SUM</code>·<code>=COUNTIF</code>로 계산한 표 1개당 1점"},
+    {n:"표 작성 개수", p:5, by:"자동", how:"<b>표 1개당 1점</b>, 5개면 만점"},
+    {n:"차트 작성 개수", p:5, by:"자동",
+     how:"<b>차트 1개당 1점</b>, 5개면 만점. 그림으로 붙여넣은 차트는 데이터와 연결되지 않아 0점"}
+  ]},
+  {sec:"발표자료", total:40, where:"파워포인트 (시각 유형은 워드)", items:[
+    {n:"1장 — 제목 · 목차 · 소속/이름", p:5, by:"판정",
+     how:"셋 다 있으면 5점 · 제목이나 목차 중 하나가 빠지면 3점 · 이름만 있으면 1점"},
+    {n:"2장 — 분석 결과", p:10, by:"판정",
+     how:"헤드메시지 3점 + 엑셀에서 만든 표·차트를 2개 이상 넣으면 5점(1개면 3점) + 서식 통일 2점"},
+    {n:"3장 — 최종 선정 · 방향성", p:10, by:"판정",
+     how:"헤드메시지 3점 + 선정 결과를 표로 제시 4점 + 그렇게 고른 이유 3점"},
+    {n:"4장 — 메시지 명확성", p:10, by:"판정",
+     how:"<b>요구사항 정리 1개당 1점</b> + 잘 파악했으면 2점 (왼쪽·오른쪽 각 5점). 개수 싸움입니다"},
+    {n:"기본 기능", p:5, by:"자동",
+     how:"페이지 번호 1 + 목차 이동 링크 2 + 대체 텍스트 1 + 서식 통일 1. <b>5분이면 얻는 5점</b>"}
+  ]}
+];
+
+function rubricHTML(){
+  return `<p class="lead">100점 = 정보 검색 30 + 엑셀 30 + <b>발표자료 40</b>. 가장 큰 덩어리는 발표자료이고,
+    <b>30점 넘게가 "잘 썼는가"가 아니라 "몇 개를 채웠는가"</b>로 붙습니다. 개수를 채우는 것이 가장 확실합니다.</p>` +
+  RUBRIC.map(g=>`
+    <div class="rsec"><h3>${g.sec}</h3><span class="tot">${g.total}점</span>
+      <span class="note" style="margin-left:auto">${g.where}</span></div>
+    <div class="tablewrap"><table><thead><tr>
+      <th>항목</th><th style="width:64px">배점</th><th>어떻게 매기나</th><th style="width:66px">채점</th>
+    </tr></thead><tbody>
+    ${g.items.map(i=>`<tr>
+      <td><b>${i.n}</b></td>
+      <td class="pts">${i.p}</td>
+      <td class="how">${i.how}</td>
+      <td><span class="chip ${i.by==="자동"?"got":"auto"}">${i.by}</span></td>
+    </tr>`).join("")}
+    </tbody></table></div>`).join("") +
+  `<h3>‘자동’과 ‘판정’은 무엇이 다른가요</h3>
+   <p><b>자동</b>은 파일 안을 직접 열어 세는 항목입니다. 채점기가 혼자 정확히 매깁니다 —
+      함수가 들어갔는지, 표와 차트가 몇 개인지, 어떤 검색 도구를 몇 종류 썼는지.</p>
+   <p><b>판정</b>은 <b>쓴 글을 읽어야</b> 점수가 나오는 항목입니다. 채점기는 글을 읽지 못하므로,
+      채점 결과 화면의 <b>‘AI에게 물어보기’</b>에서 복사한 내용을 아무 AI 채팅창에 붙여넣으면
+      같은 기준으로 판정해 줍니다.</p>
+   <p class="note">채점 기준의 권리는 한국장애인재활협회에 있습니다. 이 표는 연습을 위한 정리이며,
+      최종 점수는 대회 채점위원의 판단을 따릅니다.</p>`;
+}
+
+function shot(key, cap){
+  const src = SHOTS[key];
+  if(!src) return "";
+  return `<img class="shot" src="${src}" alt="${cap}">
+          <p class="cap">${cap}</p>`;
+}
+
+function manualHTML(){
+  const steps = [
+    {t:"주소를 엽니다", body:
+      `<p>설치할 것도, 회원가입도, 로그인도 없습니다. 휴대폰에서도 됩니다.</p>
+       <p class="tipbox"><b>파일은 이 페이지 안에서만 열립니다.</b> 어디로도 전송되지 않고, 저장되지도 않습니다.
+        화면을 닫으면 그대로 사라집니다.</p>` + shot("home","첫 화면 — 위쪽 두 칸에 파일을 넣습니다")},
+    {t:"파일 두 개를 넣습니다", body:
+      `<p>만든 <b>엑셀 파일</b>과 <b>발표자료 파일</b>을 각 칸에 끌어다 놓거나, 칸을 눌러서 고릅니다.
+        어떤 문제 세트인지는 <b>채점기가 파일 안을 보고 알아서 찾습니다.</b> 고를 필요가 없습니다.</p>
+       <p>칸이 초록색으로 바뀌면 들어간 것입니다.</p>` + shot("filled","파일이 들어가면 칸이 초록색으로 바뀝니다")},
+    {t:"‘채점하기’를 누릅니다", body:
+      `<p>몇 초면 끝납니다. 총점과 함께 <b>검색 · 엑셀 · 발표자료</b> 세 덩어리가 각각 몇 점인지 나옵니다.</p>
+       <p class="tipbox">여기서 나오는 점수는 <b>아직 반쪽</b>입니다. 파일 안을 세어서 알 수 있는 항목만 먼저 매긴
+        상태예요. 글을 읽어야 하는 항목은 다음 단계에서 채웁니다. <b>낮게 나와도 놀라지 마세요.</b></p>`
+      + shot("score","자동 채점만 먼저 — 아래 예시는 44점에서 시작합니다")},
+    {t:"‘AI에게 물어보기’로 나머지를 채웁니다", body:
+      `<p>글을 읽어야 하는 항목(배점표의 <b>판정</b>)은 채점기 혼자 매길 수 없습니다.
+        <b>복사하기</b>를 누르고, 무료 AI 채팅창(Claude · ChatGPT · Gemini 아무거나)에 붙여넣어 보내세요.
+        AI가 준 답을 <b>통째로 복사</b>해 아래 칸에 붙여넣고 <b>점수 반영</b>을 누르면 됩니다.</p>`
+      + shot("ai","복사하기 → AI에 붙여넣기 → 답을 다시 이 칸에 붙여넣기") +
+      `<p style="margin-top:18px">붙여넣고 누르면 100점 만점이 채워집니다. 같은 파일이 44점에서 80점이 되었습니다 —
+        <b>점수가 오른 게 아니라, 나머지 절반이 이제야 채점된 것</b>입니다.</p>`
+      + shot("scored","점수 반영을 누른 뒤 — 같은 파일, 100점 기준의 최종 점수")},
+    {t:"‘연습 가이드’대로 고칩니다", body:
+      `<p>놓친 점수가 <b>큰 순서</b>로 정리됩니다. 위에서 두세 개만 고쳐도 점수가 크게 오릅니다.</p>
+       <p>고친 다음 <b>다시 넣기</b>를 누르고 한 번 더 채점해 보세요. 몇 번이든 괜찮습니다.</p>`
+      + shot("guide","놓친 점수가 큰 순서로 알려줍니다")}
+  ];
+  return `<p class="lead">제출하기 전에 한 번 돌려보는 도구입니다. <b>다섯 단계</b>면 끝나고,
+      틀려도 아무 일도 일어나지 않습니다. 몇 번이든 다시 해보세요.</p>` +
+    steps.map((s,i)=>`<div class="step">
+      <div class="sh"><span class="sn">${i+1}</span><strong>${s.t}</strong></div>
+      ${s.body}
+    </div>`).join("") +
+    `<h3>자주 막히는 곳</h3>
+     <p><b>“엑셀만 넣어도 되나요?”</b> — 됩니다. 다만 발표자료가 40점이라, 넣지 않으면 40점이 통째로 빠진 점수가 나옵니다.</p>
+     <p><b>“점수가 너무 낮게 나와요.”</b> — 이 채점기는 <b>실제보다 조금 엄격하게</b> 봅니다.
+        여기서 80점을 넘으면 대회에서는 더 여유가 있습니다.</p>
+     <p><b>“파일을 넣었는데 아무 일도 안 일어나요.”</b> — 파일이 <code>.xlsx</code> · <code>.pptx</code> · <code>.docx</code>가 맞는지,
+        암호가 걸려 있지 않은지 확인해 주세요.</p>
+     <p><b>“어떤 문제인지 잘못 알아봐요.”</b> — 채점 결과 맨 위에서 유형을 직접 바꿀 수 있습니다.</p>`;
+}
+
+function openModal(title, html){
+  $("modalTitle").textContent = title;
+  $("modalBody").innerHTML = html;
+  $("modal").hidden = false;
+  $("modalBody").scrollTop = 0;   /* 숨겨진 동안에는 스크롤이 안 먹습니다 — 보인 뒤에 올립니다 */
+  document.body.style.overflow = "hidden";
+  $("modalX").focus();
+}
+function closeModal(){
+  $("modal").hidden = true;
+  document.body.style.overflow = "";
+}
 
 /* 유형은 파일 내용을 보고 알아냅니다. 학생이 고를 필요가 없습니다. */
 function renderTypes(){}
@@ -1380,6 +1579,12 @@ function bprompt(){
   $("batch").hidden = !isTeacher();
   window.addEventListener("hashchange", ()=>{ $("batch").hidden = !isTeacher(); });
 })();
+
+$("btnRubric").addEventListener("click", ()=>openModal("배점표 — 100점 채점 기준", rubricHTML()));
+$("btnManual").addEventListener("click", ()=>openModal("매뉴얼 — 쓰는 법", manualHTML()));
+$("modalX").addEventListener("click", closeModal);
+$("modal").addEventListener("click", e=>{ if(e.target === $("modal")) closeModal(); });
+document.addEventListener("keydown", e=>{ if(e.key === "Escape" && !$("modal").hidden) closeModal(); });
 
 renderTypes(); renderDrops(); renderPreview(); sync();
 </script>
