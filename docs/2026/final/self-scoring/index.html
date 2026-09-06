@@ -533,9 +533,12 @@ async function parsePptx(zip){
 
 async function parseDocx(zip){
   const raw = await zip.file("word/document.xml").async("string");
-  const paras = raw.split(/<\/w:p>/).map(p=>{
-    const d = xml("<r xmlns:w=\"http://schemas.openxmlformats.org/wordprocessingml/2006/main\">"+p.replace(/^[\s\S]*?(?=<w:)/,"")+"</r>");
-    let s=""; for(const t of d.getElementsByTagName("w:t")) s+=t.textContent;
+  /* 문단을 XML 로 다시 파싱하면 조각난 태그 때문에 파서가 멈춥니다. 글자만 직접 뽑습니다. */
+  const un = s => s.replace(/&lt;/g,"<").replace(/&gt;/g,">").replace(/&quot;/g,'"')
+                   .replace(/&#39;/g,"'").replace(/&apos;/g,"'").replace(/&amp;/g,"&");
+  const paras = raw.split(/<\/w:p>/).map(chunk=>{
+    let s="", m; const re=/<w:t[^>]*>([\s\S]*?)<\/w:t>/g;
+    while((m=re.exec(chunk))) s += un(m[1]);
     return s;
   }).filter(s=>norm(s));
   return {paras, tables:(raw.match(/<w:tbl>/g)||[]).length, images:(raw.match(/<w:drawing>/g)||[]).length};
