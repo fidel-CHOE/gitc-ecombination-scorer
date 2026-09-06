@@ -82,7 +82,9 @@ if (!SETS[type] || !xlsxPath) {
       const a = scoreDocAuto(doc, set.doc);
       line("  기본 기능", `${a.pageNum + a.links + a.alt + a.master}/5  ` +
         `번호 ${a.pageNum ? "O" : "X"} · 링크 ${a.linkCount}개 · 대체텍스트 ${a.alt ? "O" : "X"} · 서식통일 ${a.master ? "O" : "X"}`);
-      pages.forEach(p => console.log(`  ${p.page}쪽 ${p.frames != null ? `[표·차트 ${p.frames}]` : ""} ${(p.text || "(양식 그대로)").slice(0, 70)}`));
+      pages.forEach(p => console.log(`  ${p.page}쪽 ${p.frames != null ? `[표·차트 ${p.frames}]` : ""}${p.guide ? ` ⚠안내문구 ${p.guide}개 남음` : ""} ${(p.text || "(양식 그대로)").slice(0, 60)}`));
+      const left = pages.filter(p => p.guide > 0);
+      if (left.length) console.log(`  ⚠ 원본 안내 문구가 남아 있는 쪽: ${left.map(p => p.page).join(", ")} — 채점위원은 미작성으로 봅니다.`);
       console.log("  나머지 35점은 내용 판정 항목입니다 (브라우저에서 채점).");
     }
   } else {

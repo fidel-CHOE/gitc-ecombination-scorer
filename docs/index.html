@@ -171,6 +171,25 @@ td.pts small{color:var(--muted); font-weight:500}
 @keyframes pulse{0%,100%{opacity:.25; transform:scale(.8)}50%{opacity:1; transform:scale(1.15)}}
 @media (prefers-reduced-motion:reduce){.dot{animation:none; opacity:.7} .fill{transition:none}}
 
+/* AI 붙여넣기 안내 */
+.aibox{background:var(--surface); border:1.5px solid var(--accent); border-radius:var(--r); padding:20px 22px; box-shadow:var(--shadow)}
+.aibox h4{margin:0 0 6px; font-size:16.5px; font-weight:600}
+.aibox p{margin:0 0 14px; font-size:14.5px; color:var(--ink-2)}
+.aisteps{margin:0 0 16px; padding-left:20px; font-size:14.5px; color:var(--ink-2)}
+.aisteps li{margin-bottom:5px}
+.aisteps a{color:var(--accent); font-weight:500}
+.airow{display:flex; gap:10px; align-items:center; flex-wrap:wrap; margin-bottom:6px}
+.aibox textarea{
+  width:100%; font:inherit; font-size:14px; line-height:1.5; color:var(--ink);
+  background:var(--surface-2); border:1.5px solid var(--line); border-radius:var(--r);
+  padding:11px 13px; resize:vertical; min-height:88px; margin-top:10px;
+}
+.aibox textarea:focus{border-color:var(--accent)}
+.aibox label{display:block; font-size:14px; font-weight:600; margin-top:18px}
+.aibox .sub{font-size:13.5px; color:var(--muted); margin:2px 0 0}
+.aimsg{font-size:13.5px; color:var(--accent); font-weight:500}
+.aimsg.bad{color:var(--miss)}
+
 footer.foot{margin-top:56px; padding-top:20px; border-top:1px solid var(--line); font-size:13px; color:var(--muted); display:flex; flex-direction:column; gap:6px}
 </style>
 
@@ -219,9 +238,42 @@ footer.foot{margin-top:56px; padding-top:20px; border-top:1px solid var(--line);
 
   <div class="bars" id="bars"></div>
 
+  <div id="docwarn" hidden style="margin-bottom:8px"></div>
+
   <h3 class="sec">항목별 채점표</h3>
   <p class="sec-sub" id="tableSub"></p>
   <div id="tables"></div>
+
+  <section id="ai" hidden>
+    <h3 class="sec">내용을 읽고 매기는 항목 — AI에게 물어보기</h3>
+    <p class="sec-sub">위 표에서 ‘판정’이라고 적힌 항목은 글의 내용을 읽어야 점수가 나옵니다. 아래 버튼으로 복사해서 아무 AI 채팅창에 붙여넣으면 채점 기준 그대로 판정해 줍니다.</p>
+    <div class="aibox">
+      <h4>세 단계면 됩니다</h4>
+      <ol class="aisteps">
+        <li><strong>복사하기</strong>를 누릅니다. (학생이 쓴 글과 채점 기준이 함께 복사됩니다)</li>
+        <li>무료로 쓸 수 있는 AI 채팅창을 엽니다 —
+          <a href="https://claude.ai" target="_blank" rel="noopener">Claude</a> ·
+          <a href="https://chatgpt.com" target="_blank" rel="noopener">ChatGPT</a> ·
+          <a href="https://gemini.google.com" target="_blank" rel="noopener">Gemini</a>.
+          입력창에 붙여넣고(Ctrl+V) 보냅니다.</li>
+        <li>AI가 준 답을 통째로 복사해 아래 칸에 붙여넣고 <strong>점수 반영</strong>을 누릅니다.</li>
+      </ol>
+      <div class="airow">
+        <button class="go" id="aiCopy" type="button">복사하기</button>
+        <button class="ghost" id="aiShow" type="button">복사될 내용 보기</button>
+        <span class="aimsg" id="aiMsg"></span>
+      </div>
+      <textarea id="aiText" hidden readonly rows="10" aria-label="복사될 내용"></textarea>
+
+      <label for="aiPaste">AI가 준 답을 여기에 붙여넣으세요</label>
+      <p class="sub">답 전체를 그대로 붙여넣으면 됩니다. 점수만 알아서 찾아 반영합니다.</p>
+      <textarea id="aiPaste" rows="5" placeholder="여기에 붙여넣기 (Ctrl+V)"></textarea>
+      <div class="airow" style="margin-top:10px">
+        <button class="go" id="aiApply" type="button">점수 반영</button>
+        <span class="aimsg" id="aiApplyMsg"></span>
+      </div>
+    </div>
+  </section>
 
   <h3 class="sec">다음에 이것부터 — 연습 가이드</h3>
   <p class="sec-sub">놓친 점수가 큰 순서입니다. 위에서 두세 개만 해결해도 점수가 크게 오릅니다.</p>
@@ -237,7 +289,7 @@ footer.foot{margin-top:56px; padding-top:20px; border-top:1px solid var(--line);
 
 <script>
 "use strict";
-const TPL = {"other":{"s1":["10xxht7","169x7te","17c0v8k","18bm4lu","1d8e0am","1ggskkb","1jle5jl","1l2c9ho","1lary5v","1mi2pq9","1mofkfp","1nqhlq5","1obfpm0","1qyqc5n","1s1mapm","1ta093z","1uyjg6m","1vbr31r","1wdzccm","1yhgetk","5dzpgh","7tja22","9xx36n","a9kh1x","em30fr","k9l1yq","kn2fpu","q6m97h","rrey13","wv977p","ycnl2z","ztinww","zui86a"],"s3":["10g9sjm","1140saq","11pcryb","13vd7k5","14p4130","14p8h6m","15yimxd","16gc9y2","19mf99b","19rrrma","1btwj8x","1dcrh36","1f4nzkr","1fc4vik","1h0k7yc","1ht26k4","1j87aet","1likuxp","1v04blw","1wlwnf1","1yedn7","1ykac9n","2m4o9v","31tjy1","34aic7","3uxrxf","3yn59m","4zyaom","6rjk8","6s339v","7fuwxg","8mn30a","aswafk","bhzczw","bw2tfz","c65kmx","d1amx2","dqnff0","drz29n","e9drao","ev51lj","jjjiii","njp6t","oxxajo","pds3xx","rn058w","uf14ls","vasbll","xrqng","y6tp86","y7hpmb","zjbdnh","zrcfmj"],"ppt":[["108bb82","10rpq2","11k1qbe","125ysqg","18d8v6t","1b06p5k","1mif67l","1pycc3o","1ub2ks6","1wh5aat","1y8psp0","1yzj43c","3ia7qv","7tjd6q","99d94q","9eszau","9xx36n","a030mk","be113f","bo0mse","by08hd","cf6d9r","chzfvb","ctkn0l","hhsact","ou4rpj","y8ippp","z8n7sa","zyatob"],["11lh7ya","14dueoc","181l2xx","18p2hxv","19hmrz5","1azrk0p","1b06p5k","1fpuaaz","1ik06lp","1ka73dx","1nmurjf","1ns6b76","1ol80wy","1qkemj","1ruro9","1um51mz","1wp50mu","1y1ijsi","3ia7qv","7bo4uq","9njn80","aw0l2d","be113f","by08hd","bz33lz","c7zu6c","chzfvb","efwnq4","hb89o9","hhsact","i24nh9","jvgzkg","pav9sn","tmlq1g","ztntfp"],["101x4w4","125ysqg","14dueoc","14nm2mf","15wzpsr","1b06p5k","1bscixm","1coa0l1","1jbfbko","1ns6b76","1ol80wy","1txahv6","1um51mz","6rkknv","8ukg3z","9vvqpg","9xx36n","aw0l2d","bajbyu","by08hd","c7zu6c","chzfvb","dby8y8","defbss","efwnq4","f9vgt1","fyzl56","hhsact","huek1y","i24nh9","jvgzkg","op5ydw","qgsffn","ukbjag"],["10led6f","125ysqg","1299sck","140uyhk","14dueoc","14ibmq1","14t3m05","17msbv","191pl3t","1aiexrw","1b06p5k","1cuix40","1dko1np","1e1c3wr","1fgq4of","1izyiuv","1kq1cjr","1lihrjf","1mcblzl","1najbz6","1ns6b76","1ol80wy","1oupwc4","1rugzt3","1tqxice","1u7q7z0","1um51mz","1uvlekt","1uxq9rm","1uzg5j","1v1zfa1","1yjxeuf","2sdgkd","3ia7qv","6sv8wj","7u4yfo","844k4n","8kyhxr","9xx36n","a030mk","be113f","bo0mse","by08hd","c7zu6c","chzfvb","dlxun7","ewvsu2","ezvv42","f9vgt1","h05sxp","hhsact","hkr6l1","i24nh9","iepw35","kghy3d","m2km69","nmtihf","p0vv5l","p6pm7c","qiycjk","rwic6f","tob4mw","uac0jd","ui0455","ztntfp"]]},"dev":{"s1":["1097w9h","10xxht7","12huv63","13c0i9e","169x7te","186zvf","18ayvgz","1f8ey4t","1gip5m9","1jle5jl","1l2c9ho","1n4zpa","1nqhlq5","1qyqc5n","1s1mapm","1t5zst9","1t9xzol","1ta093z","1wv7ixb","38l1fa","6k51ho","9xx36n","a9kh1x","bqf2o7","grkxdn","i6h6tb","pfr4w3","q6m97h","qlexm3","rrey13","vf3t69","ztinww","zui86a"],"s3":["11yl21s","14akxct","15j5ml7","17fndkv","17nqhuy","1ago9iq","1cttald","1e8mk3d","1gb14vd","1h1i9rt","1ht26k4","1iuoex6","1jyrlzn","1ozayfu","1pa2890","1pii12h","1q3g6jb","1qma4uf","1rvoqkt","1vj2wex","1y299gw","2rj9zp","3ia7qv","51pp6f","6s339v","766mgz","76f8ki","7awl88","7oevjc","9ieti0","9rmbs3","9u5ycu","bgxq2z","c77qrl","ct7moj","cw3cud","d5e4ux","d71634","drz29n","hyg581","jbttmt","kh2fxe","l85w0z","lyrkne","ml2for","o4495s","pzh4s6","qad4z","y8aebe","ylzqpb"],"ppt":[["108bb82","124lqiv","17o0zjv","1b06p5k","1g9osep","1oi8cnl","1pycc3o","1ub2ks6","1v5gv9s","1wh5aat","1xk1tj","4nfuvi","7tjd6q","9eszau","a030mk","be113f","bo0mse","by08hd","c7zu6c","chzfvb","cj1jqs","eo0vpq","hhsact","mujstq","r72nmg","tuzgv0","v8pm9j","y2950y","ztntfp"],["12fwgvx","12p68ko","19hmrz5","19qkfu8","1b06p5k","1deg9ob","1ns6b76","1ol80wy","1pb9w8u","1qkemj","1u273fx","1um51mz","1wuf4cp","3ia7qv","3nzjdh","7065cr","a030mk","aw0l2d","be113f","by08hd","c7zu6c","chzfvb","clgss8","cp6r7y","dd5pdc","efwnq4","g9zrb6","hhsact","i24nh9","jvgzkg","tc24kc","xhkz51","ysp3zn","ztntfp"],["101x4w4","14dueoc","184vq2u","1ajir9r","1b06p5k","1b5f3on","1kfyp4p","1ns6b76","1ol80wy","1q2qq03","1svnq8j","1tfgtmm","1um51mz","1v6b0qx","9xx36n","acybee","aw0l2d","bgi1jw","by08hd","dby8y8","efwnq4","ezvv42","f9vgt1","hhsact","hxlndf","i24nh9","jvgzkg","k686xv","l3zenu","sdcq5z","wv9jha","ztntfp"],["10led6f","14dueoc","16rtkpj","17msbv","17o0zjv","18afdru","1aesquj","1b06p5k","1beroie","1h7vkk0","1hpfbq3","1i71zjs","1i8husv","1is00iy","1ns6b76","1oeb3qh","1um51mz","2kq7bv","2vbs1f","3ia7qv","6q32by","7mbqc9","9xx36n","a030mk","be113f","bo0mse","by08hd","c0as2u","c7zu6c","chzfvb","ctiked","dlxun7","ezvv42","f9vgt1","gv7ikg","hhsact","i24nh9","i6p7x2","jsl8ft","jvgzkg","llz951","lsk1jg","nfep11","o3pmf3","p6pm7c","qg5eo0","re3tah","xwfo18","ztntfp"]]},"visual":{"s1":["10xxht7","169x7te","17c0v8k","18bm4lu","1d8e0am","1ggskkb","1jle5jl","1l2c9ho","1lary5v","1mi2pq9","1mofkfp","1nqhlq5","1obfpm0","1qyqc5n","1s1mapm","1ta093z","1uyjg6m","1vbr31r","1wdzccm","1yhgetk","5dzpgh","7tja22","9xx36n","a9kh1x","em30fr","k9l1yq","kn2fpu","q6m97h","rrey13","wv977p","ycnl2z","ztinww","zui86a"],"s3":["10g9sjm","1140saq","11pcryb","13vd7k5","14p4130","14p8h6m","15yimxd","16gc9y2","19mf99b","19rrrma","1btwj8x","1dcrh36","1f4nzkr","1fc4vik","1h0k7yc","1ht26k4","1j87aet","1likuxp","1v04blw","1wlwnf1","1yedn7","1ykac9n","2m4o9v","31tjy1","34aic7","3uxrxf","3yn59m","4zyaom","6rjk8","6s339v","7fuwxg","8mn30a","aswafk","bhzczw","bw2tfz","c65kmx","d1amx2","dqnff0","drz29n","e9drao","ev51lj","jjjiii","njp6t","oxxajo","pds3xx","rn058w","uf14ls","vasbll","xrqng","y6tp86","y7hpmb","zjbdnh","zrcfmj"],"ppt":[]}};
+const TPL = {"other":{"s1":["1097w9h","10h21ez","10xxht7","11z17ye","169x7te","17c0v8k","18bm4lu","1ar1xj9","1d8e0am","1ggskkb","1gtyz30","1jle5jl","1l2c9ho","1lary5v","1mi2pq9","1mofkfp","1nqhlq5","1obfpm0","1qyqc5n","1s1mapm","1ta093z","1uyjg6m","1vbr31r","1wdzccm","1yhgetk","5dzpgh","7tja22","9xx36n","a9kh1x","cggtoi","em30fr","k9l1yq","kn2fpu","q6m97h","rrey13","wv977p","xh73p","ycnl2z","ztinww","zui86a"],"s3":["10g9sjm","1140saq","11pcryb","13vd7k5","14p4130","14p8h6m","15yimxd","16gc9y2","19mf99b","19rrrma","1btwj8x","1dcrh36","1f4nzkr","1fc4vik","1h0k7yc","1ht26k4","1j87aet","1likuxp","1retdfe","1v04blw","1wlwnf1","1yedn7","1ykac9n","2m4o9v","31tjy1","34aic7","3uxrxf","3yn59m","4zyaom","6rjk8","6s339v","7fuwxg","8mn30a","aswafk","bhzczw","bw2tfz","c65kmx","d1amx2","dqnff0","drz29n","e9drao","ev51lj","jjjiii","mafxkq","njp6t","oxxajo","pds3xx","rn058w","uf14ls","vasbll","xrqng","y6tp86","y7hpmb","zjbdnh","zrcfmj"],"ppt":[["108bb82","10rpq2","11k1qbe","125ysqg","18d8v6t","1awrtcx","1b06p5k","1cxl42r","1dctxxm","1g0fq7k","1go5v2u","1k0xx7v","1mif67l","1muujqc","1pycc3o","1qpcljk","1ub2ks6","1ups5xs","1uqgn5j","1wh5aat","1y8psp0","1yzj43c","2s32y4","3ia7qv","7tjd6q","99d94q","9eszau","9xx36n","a030mk","be113f","bo0mse","by08hd","cf6d9r","chzfvb","ctkn0l","hhsact","j61b1r","jgtkpp","ou4rpj","wzats0","y8ippp","z8n7sa","zyatob"],["11lh7ya","14dueoc","159yqfj","181l2xx","18p2hxv","19hmrz5","1azrk0p","1b06p5k","1fpuaaz","1ijk0wr","1ik06lp","1ka73dx","1kl2yqt","1kllq0o","1nmurjf","1ns6b76","1ol80wy","1qkemj","1ruro9","1u2m57w","1um51mz","1vwg5pb","1wp50mu","1ww8lkr","1y1ijsi","1y59i1p","3ia7qv","3jtca0","4m6qes","6q2i19","7bo4uq","844k4n","99ink8","9flwfz","9njn80","9xx36n","aw0l2d","be113f","by08hd","bz33lz","c7zu6c","chzfvb","efwnq4","g9ri79","hb89o9","hhsact","i24nh9","jvgzkg","nbgydm","ou39g7","pav9sn","tc24kc","te7cso","tmlq1g","u9ogbm","vfh0ik","we6p0k","ybkuun","yi02ba"],["101x4w4","10i40ul","125ysqg","14dueoc","14nm2mf","15wzpsr","1b06p5k","1bscixm","1coa0l1","1fiziqx","1i2ilew","1ijk0wr","1iukb27","1jbfbko","1kl2yqt","1laem20","1ns6b76","1ol80wy","1qp5mex","1tcc8ub","1txahv6","1u1bd3p","1um51mz","1w8m8jx","1ww8lkr","6rkknv","7ereb5","844k4n","8ukg3z","9pli4y","9vvqpg","9xx36n","aw0l2d","bajbyu","by08hd","c7zu6c","chzfvb","dby8y8","defbss","efwnq4","f9vgt1","fyzl56","hhsact","huek1y","i24nh9","iodorz","jcb0u5","jvgzkg","msx4ve","op5ydw","ou39g7","qgsffn","u9ogbm","ukbjag","we6p0k","x1kuxr","yi02ba"],["1094pve","10led6f","122ir3r","125ysqg","1299sck","140uyhk","14dueoc","14ibmq1","14t3m05","17msbv","191pl3t","1aiexrw","1am527f","1b06p5k","1cfnvex","1cuix40","1d0xq1a","1djw2cj","1dko1np","1e1c3wr","1f68yjk","1fgq4of","1fm0pon","1ijk0wr","1izyiuv","1j687jt","1kls10m","1kq1cjr","1lihrjf","1lwj2nu","1m0k6ez","1mcblzl","1najbz6","1ns6b76","1ol80wy","1oupwc4","1rugzt3","1tqxice","1u7q7z0","1um51mz","1uvlekt","1uxq9rm","1uzg5j","1v1zfa1","1ww8lkr","1xurqt3","1y9vuvj","1yjxeuf","2sdgkd","3ia7qv","3x3dfo","5sx06r","61ya3n","6sv8wj","7u4yfo","81nvz4","844k4n","8kyhxr","9xx36n","9zl3tx","a030mk","be113f","bo0mse","buf89t","by08hd","c7zu6c","chzfvb","dlxun7","e3n78x","ewvsu2","ezvv42","f9vgt1","h05sxp","h48yl6","hhsact","hkr6l1","i24nh9","iepw35","jbrupa","kghy3d","lu9do8","m2km69","nmtihf","ou39g7","p0vv5l","p6pm7c","qiycjk","rwic6f","s8i34t","tob4mw","tq1uip","u2do6x","u9ogbm","uac0jd","uhupod","ui0455","va54qp","we6p0k","xh25wg","yi02ba","yo9cri"]]},"dev":{"s1":["1097w9h","10xxht7","12huv63","13c0i9e","169x7te","186zvf","18ayvgz","1dc9u56","1f8ey4t","1gip5m9","1hjmls3","1jle5jl","1l2c9ho","1n4zpa","1nqhlq5","1qyqc5n","1s1mapm","1t5zst9","1t9xzol","1ta093z","1wbopid","1wv7ixb","38l1fa","6k51ho","9n9h3d","9xx36n","a9kh1x","bqf2o7","cggtoi","grkxdn","i6h6tb","j7hxs6","n7hs9p","pfr4w3","q6m97h","qlexm3","rrey13","vf3t69","vj6sng","ye59zi","ztinww","zui86a"],"s3":["10gzo12","11yl21s","12fwgvx","14akxct","15j5ml7","17fndkv","17nqhuy","182z0wp","19gztqj","1ago9iq","1atinrk","1cttald","1e8mk3d","1f4nzkr","1gb14vd","1h1i9rt","1ht26k4","1ipnf9c","1iuoex6","1j87aet","1jyrlzn","1ozayfu","1pa2890","1pii12h","1q3g6jb","1qma4uf","1retdfe","1rvoqkt","1uy3xep","1vj2wex","1y299gw","2rj9zp","3ia7qv","51pp6f","6s339v","766mgz","76f8ki","7awl88","7ibzin","7oevjc","7ycp9j","9ieti0","9rmbs3","9u5ycu","bgxq2z","c77qrl","cp6r7y","ct7moj","cw3cud","d5e4ux","d71634","drz29n","dvxgc6","gxt2yv","hyg581","jbttmt","jpahnv","kh2fxe","kit50y","l85w0z","lyrkne","ml2for","nw2szr","o4495s","pzh4s6","qad4z","rsw6ar","swul2n","t6xc9l","tqwjnj","y8aebe","ylzqpb"],"ppt":[["108bb82","124lqiv","15j741g","17o0zjv","1as3d3z","1avznb8","1b06p5k","1bonn7n","1d416nf","1g9osep","1go5v2u","1k0xx7v","1mbmvei","1mif67l","1oi8cnl","1pycc3o","1ub2ks6","1v5gv9s","1wh5aat","1xk1tj","2s32y4","4nfuvi","7tjd6q","99d94q","9eszau","9novzl","a030mk","be113f","bo0mse","by08hd","c7zu6c","chzfvb","cj1jqs","eo0vpq","hhsact","iy4pu3","mujstq","r72nmg","sg6cur","tuzgv0","u31ji","v8pm9j","y2950y"],["10u4k67","12fwgvx","12p68ko","14s75l","14vzox1","19hmrz5","19qkfu8","19yslix","1b06p5k","1deg9ob","1hg69eb","1iiug4e","1kl2yqt","1kllq0o","1ns6b76","1ol80wy","1pb9w8u","1qkemj","1u273fx","1um51mz","1vwg5pb","1wuf4cp","1xy7bvo","3ia7qv","3nzjdh","4m6qes","7065cr","844k4n","9flwfz","a030mk","aw0l2d","be113f","by08hd","c7zu6c","chzfvb","clgss8","cp6r7y","dd5pdc","efwnq4","g9zrb6","hhsact","i24nh9","j3vwtp","jvgzkg","nxag3i","ou39g7","tc24kc","u9ogbm","we6p0k","wmba0f","xhkz51","yi02ba","ysp3zn","z3kcxe"],["101x4w4","11wnf0t","14dueoc","184vq2u","1ajir9r","1b06p5k","1b5f3on","1cxk8o3","1hhsa9r","1kfyp4p","1kl2yqt","1ns6b76","1ol80wy","1q2qq03","1q7idlh","1qa7t1t","1svnq8j","1tcc8ub","1tfgtmm","1u1bd3p","1um51mz","1unkg0g","1v6b0qx","1ww8lkr","844k4n","9pli4y","9xx36n","acybee","aw0l2d","bgi1jw","by08hd","dby8y8","efwnq4","ezvv42","f9vgt1","hhsact","hxlndf","i24nh9","ig6ho7","jvgzkg","k686xv","l3zenu","op0oj5","ou39g7","qnqeeu","sdcq5z","u9ogbm","up2djy","vkz85p","we6p0k","wmba0f","wv9jha","yi02ba"],["10led6f","10lv0r","13epzjw","149irqd","14dueoc","16rtkpj","17msbv","17o0zjv","18afdru","199692g","1aesquj","1b06p5k","1beroie","1d0xq1a","1djw2cj","1dmfzxl","1f68yjk","1h7vkk0","1hg69eb","1hpfbq3","1i71zjs","1i8husv","1is00iy","1kls10m","1ky61pc","1ns6b76","1oeb3qh","1ol80wy","1opa58s","1ps8rwi","1sboa4x","1um51mz","1ww8lkr","23i58n","2kq7bv","2vbs1f","3ia7qv","6q32by","7mbqc9","81nvz4","844k4n","9xx36n","9zl3tx","a030mk","be113f","bo0mse","by08hd","c0as2u","c7zu6c","chzfvb","ctiked","dlxun7","eimenx","ezvv42","f9vgt1","g8w1op","gv7ikg","hhsact","i24nh9","i6p7x2","jozsm7","jsl8ft","jvgzkg","llz951","lsk1jg","nfep11","o3pmf3","ou39g7","p6pm7c","qg5eo0","re3tah","rtnr2k","ssp751","tb87h3","u9ogbm","uruq6d","va54qp","wmba0f","wv7k9d","xwfo18","yi02ba","yo9cri"]]},"visual":{"s1":["1097w9h","10h21ez","10xxht7","11z17ye","169x7te","17c0v8k","18bm4lu","1ar1xj9","1d8e0am","1ggskkb","1gtyz30","1jle5jl","1l2c9ho","1lary5v","1mi2pq9","1mofkfp","1nqhlq5","1obfpm0","1qyqc5n","1s1mapm","1ta093z","1uyjg6m","1vbr31r","1wdzccm","1yhgetk","5dzpgh","7tja22","9xx36n","a9kh1x","cggtoi","em30fr","k9l1yq","kn2fpu","q6m97h","rrey13","wv977p","xh73p","ycnl2z","ztinww","zui86a"],"s3":["10g9sjm","1140saq","11pcryb","13vd7k5","14p4130","14p8h6m","15yimxd","16gc9y2","19mf99b","19rrrma","1btwj8x","1dcrh36","1f4nzkr","1fc4vik","1h0k7yc","1ht26k4","1j87aet","1likuxp","1retdfe","1v04blw","1wlwnf1","1yedn7","1ykac9n","2m4o9v","31tjy1","34aic7","3uxrxf","3yn59m","4zyaom","6rjk8","6s339v","7fuwxg","8mn30a","aswafk","bhzczw","bw2tfz","c65kmx","d1amx2","dqnff0","drz29n","e9drao","ev51lj","jjjiii","mafxkq","njp6t","oxxajo","pds3xx","rn058w","uf14ls","vasbll","xrqng","y6tp86","y7hpmb","zjbdnh","zrcfmj"],"ppt":[]}};
 
 /* ────────────────────────────────────────────────────────────
    문제 정의 — 새 문제 세트는 여기에만 추가하면 됩니다
@@ -626,16 +678,24 @@ function scoreDocAuto(doc, kind){
   };
 }
 
+/* \uc591\uc2dd\uc5d0 \uc6d0\ub798 \uc801\ud600 \uc788\ub358 \uc548\ub0b4 \ubb38\uad6c \u2014 \ud574\uc2dc\uac00 \ub2ec\ub77c\ub3c4(\uc904\ubc14\uafc8\u00b7\ub744\uc5b4\uc4f0\uae30 \ucc28\uc774) \ud559\uc0dd \uae00\ub85c \uc138\uc9c0 \uc54a\uc2b5\ub2c8\ub2e4 */
+const GUIDEWORD = /(\uc791\uc131\ud558\uc138\uc694|\uc785\ub825\ud558\uc138\uc694|\uc81c\uc2dc\ud558\uc138\uc694|\uae30\ub85d\ud558\uc138\uc694|\ubcf4\uc5ec\uc8fc\uc138\uc694|\ud574 \uc8fc\uc138\uc694|\ud558\uc2ed\uc2dc\uc624|\uc791\uc131\ub780|\uc785\ub825\ub780|\uc5ec\uae30\uc5d0\s*(\uc791\uc131|\uc785\ub825|\uc4f0)|^Tip\s*[:\uff1a]|\uc608\s*[:\uff1a])/;
+function isGuide(t){ return GUIDEWORD.test(t); }
+
 function studentSlideText(doc, kind, tplSet){
   if(kind!=="pptx") {
     const tpl = new Set();
-    return doc.paras.filter(p=>!tpl.has(norm(p))).map((p,i)=>({page:i+1, text:norm(p)}));
+    return doc.paras.map(p=>norm(p)).filter(p=>p && !tpl.has(p))
+      .map((p,i)=>({page:i+1, text:p, guide: isGuide(p)?1:0}));
   }
   const tplSlides = TPL[tplSet]?.ppt || [];
   return doc.slides.map((s,i)=>{
     const tset = new Set(tplSlides[i] || []);
-    const own = s.texts.map(norm).filter(t=>t && !tset.has(h32(t)));
-    return {page:i+1, text: own.join(" \u00b7 "), frames:s.frames, pics:s.pics, blank: own.length===0};
+    const texts = s.texts.map(norm).filter(Boolean);
+    const guide = texts.filter(isGuide).length;
+    const own = texts.filter(t=>!tset.has(h32(t)) && !isGuide(t));
+    return {page:i+1, text: own.join(" \u00b7 "), frames:s.frames, pics:s.pics,
+            guide, blank: own.length===0};
   });
 }
 
@@ -796,7 +856,8 @@ async function grade(set, xl, doc){
 /* ── 화면 그리기 ── */
 let LAST=null;
 function render(set, groups, ctx){
-  LAST={set, groups, ctx};
+  LAST={set, groups, ctx}; AI=null;
+  const box=$("ai"); if(box){ box.hidden=true; $("aiPaste").value=""; $("aiText").hidden=true; $("aiShow").textContent="복사될 내용 보기"; }
   const llm = ctx.doc && !ctx.allBlank ? set.docItems : [];
   const pending = [
     {sec:"search", id:"s1", label:"① 검색의 효과성 — 검색엔진", max:5,
@@ -847,6 +908,16 @@ function paint(set, autoItems, judged, ctx){
       <div class="val">${v}<small>/${cap[s.k]}</small></div></div>`;
   }).join("");
 
+  /* 원본 양식의 안내 문구("…작성하세요", "Tip :")가 그대로 남아 있는 쪽 */
+  const left = (ctx.pages||[]).filter(p=>p.guide>0);
+  const dw = $("docwarn");
+  if(dw){
+    dw.hidden = left.length===0;
+    if(left.length) dw.innerHTML = `<div class="warn"><b>양식 안내 문구가 아직 남아 있습니다 — ${left.map(p=>p.page+"쪽").join(", ")}</b><br>
+      “…작성하세요”, “Tip :” 같은 문장은 <b>무엇을 쓰라는 안내</b>이지 답이 아닙니다. 그 자리를 지우고 내 답으로 바꿔야 점수가 붙습니다.
+      안내 문구가 남아 있으면 채점위원은 “아직 작성하지 않았다”로 봅니다.</div>`;
+  }
+
   $("tableSub").textContent = set.provisional
     ? "시각 유형 배점은 협회 확정 전 잠정 기준입니다."
     : "‘자동’은 파일에서 직접 확인한 항목, ‘판정’은 내용을 읽고 매긴 항목입니다.";
@@ -877,22 +948,17 @@ function paint(set, autoItems, judged, ctx){
 }
 function esc(s){ return String(s).replace(/[&<>]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;"}[c])); }
 
-/* ── 내용 판정 (Claude) ── */
-async function askClaude(set, autoItems, pending, ctx){
-  let sample=null;
-  /* Claude 뷰어 밖(GitHub Pages 등)에서는 claude 자체가 없습니다 — 자동 채점만 돌립니다 */
-  try{ if(typeof claude!=="undefined" && claude.use) sample = await claude.use("sample"); }catch(_){}
-  const fallback = () => paint(set, autoItems, pending.map(p=>({
-    ...p, got:0, auto:false,
-    why:"내용을 읽고 매기는 항목입니다. 아래 가이드에 적힌 기준을 보고 선생님·보호자와 함께 확인해 주세요."
-  })), ctx);
-  if(!sample){ fallback(); return; }
-
+/* ── 내용 판정 ── */
+function dumps(ctx){
   const searchDump = ctx.search.entries.slice(0,40).map(e=>
     `- [${e.kind==="engine"?"검색엔진":e.kind==="ai"?"AI":"기타"}] 도구:${e.tool} / 입력:${e.q.slice(0,300)} / 결과:${e.a.slice(0,300)}`).join("\n") || "(기록 없음)";
-  const pageDump = ctx.pages.map(p=>`[${p.page}페이지] 학생이 직접 쓴 내용: ${p.text||"(없음 — 양식 그대로)"}${p.frames!=null?` / 표·차트 개체 ${p.frames}개`:""}`).join("\n") || "(문서 없음)";
+  const pageDump = ctx.pages.map(p=>`[${p.page}페이지] 학생이 직접 쓴 내용: ${p.text||"(없음 — 양식 그대로)"}${p.frames!=null?` / 표·차트 개체 ${p.frames}개`:""}${p.guide?` / ⚠ 원본 양식의 안내 문구가 ${p.guide}개 그대로 남아 있음 — 이 쪽은 아직 작성하지 않은 것으로 보고 낮게 채점하세요`:""}`).join("\n") || "(문서 없음)";
+  return {searchDump, pageDump};
+}
 
-  const prompt = `당신은 GITC e-Combination 종목의 채점위원입니다. 아래 채점 기준에 따라 학생 제출물을 채점하세요.
+function head(pending, ctx){
+  const {searchDump, pageDump} = dumps(ctx);
+  return `당신은 GITC e-Combination 종목의 채점위원입니다. 아래 채점 기준에 따라 학생 제출물을 채점하세요.
 장애 학생 대상 대회이므로 후하지도 박하지도 않게, 기준 문구를 글자 그대로 적용하세요.
 
 ## 채점할 항목
@@ -903,7 +969,50 @@ ${searchDump}
 
 ## 학생이 제출 문서에 직접 쓴 내용 (원본 양식 문구는 제외했습니다)
 ${pageDump}
+`;
+}
 
+/* 사람이 AI 채팅창에 붙여넣을 프롬프트 — 읽을 수 있는 글 + 맨 끝 한 줄에 점수 */
+function pastePrompt(pending, ctx){
+  return head(pending, ctx) + `
+## 출력 형식
+먼저 항목마다 아래 형식으로 써 주세요. 초등학생도 알아들을 수 있는 짧고 쉬운 문장으로 쓰세요.
+
+**항목 이름 (받은 점수/최대 점수)**
+- 왜 이 점수인가: (학생이 실제로 쓴 내용을 그대로 인용하면서 한두 문장)
+- 어떻게 하면 오르나: (무엇을 어디에 어떻게 고쳐 쓰면 되는지 두 문장)
+
+전부 다 쓴 다음, 맨 마지막 줄에 아래 형식 그대로 한 줄을 덧붙이세요. 이 줄은 프로그램이 읽습니다.
+점수: ${pending.map(p=>`${p.id}=숫자`).join(", ")}`;
+}
+
+let AI = null;   /* {set, autoItems, pending, ctx} — 붙여넣기 채점용 보관 */
+
+function showAiPanel(state){
+  AI = state;
+  const box = $("ai");
+  if(!box) return;
+  box.hidden = false;
+  $("aiText").value = pastePrompt(state.pending, state.ctx);
+  $("aiMsg").textContent = "";
+  $("aiApplyMsg").textContent = "";
+}
+
+async function askClaude(set, autoItems, pending, ctx){
+  let sample=null;
+  /* Claude 뷰어 밖(GitHub Pages 등)에서는 claude 자체가 없습니다 — 붙여넣기 방식으로 안내합니다 */
+  try{ if(typeof claude!=="undefined" && claude.use) sample = await claude.use("sample"); }catch(_){}
+
+  const handOff = (why) => {
+    paint(set, autoItems, pending.map(p=>({...p, got:0, auto:false, why})), ctx);
+    showAiPanel({set, autoItems, pending, ctx});
+  };
+  if(!sample){
+    handOff("내용을 읽고 매기는 항목입니다. 아래 ‘AI에게 물어보기’로 점수를 받아 반영해 주세요.");
+    return;
+  }
+
+  const prompt = head(pending, ctx) + `
 ## 출력 형식
 아래 JSON만 출력하세요. 다른 말은 쓰지 마세요.
 {"items":[{"id":"항목id","score":숫자,"why":"이 점수를 준 근거를 학생이 읽을 문장으로 한 줄","advice":"점수를 올리려면 무엇을 어떻게 해야 하는지 구체적으로 두 문장"}]}
@@ -912,6 +1021,7 @@ score는 최대 점수를 넘지 않는 0 이상의 숫자입니다. 근거는 �
   try{
     const data = await sample.json(prompt, {modelTier:"default"});
     const byId = Object.fromEntries((data.items||[]).map(i=>[i.id,i]));
+    $("ai").hidden = true;
     paint(set, autoItems, pending.map(p=>{
       const r = byId[p.id];
       const got = r ? Math.max(0, Math.min(p.max, Number(r.score)||0)) : 0;
@@ -920,12 +1030,55 @@ score는 최대 점수를 넘지 않는 0 이상의 숫자입니다. 근거는 �
         advice: (r && r.advice) ? r.advice : p.advice};
     }), ctx);
   }catch(e){
-    if(e && e.code==="rate_limited"){
-      paint(set, autoItems, pending.map(p=>({...p, got:0, auto:false,
-        why:"지금은 판정 요청이 몰려 있습니다. 잠시 뒤 다시 채점해 주세요."})), ctx);
-    } else fallback();
+    handOff(e && e.code==="rate_limited"
+      ? "지금은 판정 요청이 몰려 있습니다. 아래 ‘AI에게 물어보기’로 대신 받아 보세요."
+      : "내용을 읽고 매기는 항목입니다. 아래 ‘AI에게 물어보기’로 점수를 받아 반영해 주세요.");
   }
 }
+
+/* ── AI 붙여넣기 패널 ── */
+$("aiCopy").addEventListener("click", async ()=>{
+  const t = $("aiText").value;
+  const msg = $("aiMsg");
+  try{
+    await navigator.clipboard.writeText(t);
+    msg.className="aimsg"; msg.textContent="복사했습니다. AI 채팅창에 붙여넣으세요.";
+  }catch(_){
+    const ta=$("aiText"); ta.hidden=false; ta.removeAttribute("readonly");
+    ta.focus(); ta.select();
+    msg.className="aimsg"; msg.textContent="아래 칸이 모두 선택되었습니다. Ctrl+C 로 복사하세요.";
+  }
+});
+$("aiShow").addEventListener("click", ()=>{
+  const ta = $("aiText");
+  ta.hidden = !ta.hidden;
+  $("aiShow").textContent = ta.hidden ? "복사될 내용 보기" : "내용 접기";
+});
+$("aiApply").addEventListener("click", ()=>{
+  const msg = $("aiApplyMsg");
+  if(!AI){ return; }
+  const text = $("aiPaste").value;
+  const found = {};
+  const re = /\b([a-z]\d{1,2})\s*[=:]\s*(\d+(?:\.\d+)?)/gi;
+  let m;
+  while((m = re.exec(text))) found[m[1].toLowerCase()] = Number(m[2]);
+
+  const hit = AI.pending.filter(p=>found[p.id]!=null);
+  if(!hit.length){
+    msg.className="aimsg bad";
+    msg.textContent="점수를 찾지 못했습니다. AI가 준 답을 통째로 붙여넣었는지 확인해 주세요.";
+    return;
+  }
+  msg.className="aimsg";
+  msg.textContent=`${hit.length}개 항목의 점수를 반영했습니다.`;
+  paint(AI.set, AI.autoItems, AI.pending.map(p=>{
+    const v = found[p.id];
+    return v==null
+      ? {...p, got:0, auto:false, why:"AI 답에서 이 항목 점수를 찾지 못했습니다."}
+      : {...p, got:Math.max(0, Math.min(p.max, v)), auto:false, why:"AI가 채점 기준대로 판정한 점수입니다. 자세한 설명은 AI 답을 보세요."};
+  }), AI.ctx);
+  $("ai").scrollIntoView({behavior:"smooth", block:"start"});
+});
 
 renderTypes(); renderDrops(); renderPreview(); sync();
 </script>

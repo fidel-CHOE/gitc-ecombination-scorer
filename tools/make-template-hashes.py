@@ -80,12 +80,23 @@ for key in ("other", "dev", "visual"):
     files = getattr(args, key)
     if not files:
         continue
-    xlsx = next((f for f in files if f.lower().endswith(".xlsx")), None)
-    pptx = next((f for f in files if f.lower().endswith(".pptx")), None)
+    # 같은 유형의 양식이 여러 판(수정 전/후)일 수 있습니다. 전부 받아 합집합으로 씁니다.
+    xlsxs = [f for f in files if f.lower().endswith(".xlsx")]
+    pptxs = [f for f in files if f.lower().endswith(".pptx")]
+    s1, s3 = set(), set()
+    for f in xlsxs:
+        s1 |= set(sheet_hashes(f, S1))
+        s3 |= set(sheet_hashes(f, S3))
+    slides = []
+    for f in pptxs:
+        for i, hs in enumerate(slide_hashes(f)):
+            while len(slides) <= i:
+                slides.append(set())
+            slides[i] |= set(hs)
     result[key] = {
-        "s1": sheet_hashes(xlsx, S1) if xlsx else [],
-        "s3": sheet_hashes(xlsx, S3) if xlsx else [],
-        "ppt": slide_hashes(pptx) if pptx else [],
+        "s1": sorted(s1),
+        "s3": sorted(s3),
+        "ppt": [sorted(s) for s in slides],
     }
 
 print(json.dumps(result, separators=(",", ":")))
