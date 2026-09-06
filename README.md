@@ -3,7 +3,7 @@
 2026 GITC(Global IT Challenge for Youth with Disabilities) **e-Combination** 종목 제출물을
 채점 루브릭 그대로 100점 만점으로 채점하고, 어디를 더 채워야 점수가 오르는지 알려주는 도구입니다.
 
-**👉 [바로 쓰기](https://gitc.visioncampus.co.kr/)**
+**👉 [바로 쓰기](https://gitc.visioncampus.co.kr/2026/final/self-scoring/)**
 
 파일은 브라우저 안에서만 열립니다. 서버로 전송되지 않고, 어디에도 저장되지 않습니다.
 
@@ -152,11 +152,18 @@ python3 tools/make-template-hashes.py \
 채점 로직은 `src/app.html` 한 벌뿐입니다. GitHub Pages 배포본은 여기에 HTML 뼈대만 씌운 것입니다.
 
 ```bash
-node tools/build.js      # src/app.html → docs/index.html
+node tools/build.js
+```
+
+```
+docs/index.html                          ← GITC 자료실 첫 화면  (src/hub.html)
+docs/2026/final/self-scoring/index.html  ← 자가채점기           (src/app.html)
+docs/CNAME                               ← 사용자 지정 도메인
 ```
 
 Pages 설정: Settings → Pages → Source `main` 브랜치의 `/docs` 폴더.
-사용자 지정 도메인은 `docs/CNAME` 에 있습니다. `build.js` 가 빌드할 때마다 다시 씁니다.
+사용자 지정 도메인은 `docs/CNAME` 에 있고, 빌드할 때마다 다시 씁니다.
+GITC 관련 도구가 늘어나면 연도·단계별 경로(`/2027/...`)로 나란히 붙이면 됩니다.
 
 라이브러리는 JSZip 하나만 CDN에서 불러옵니다. 나머지는 전부 이 파일 안에 있습니다.
 
